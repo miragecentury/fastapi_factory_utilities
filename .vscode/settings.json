@@ -55,4 +55,5 @@
     "cSpell.words": [
         "asgi"
     ],
+    "testing.defaultGutterClickAction": "debug"
 }
