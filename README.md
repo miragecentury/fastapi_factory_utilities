@@ -1,4 +1,4 @@
-# python-poetry-empty
+# fastapi_factory_utilities
 
 Project Empty for Python with Poetry
 
@@ -63,6 +63,14 @@ Included with the usage of buildpacks
 
 ```bash
 npm install -g @apideck/portman
+```
+
+### MongoDB
+
+<https://docs.mongodb.com/manual/installation/>
+
+```bash
+sudo apt install -y mongodb
 ```
 
 ### 1- Dev Environment

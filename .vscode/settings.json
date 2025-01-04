@@ -52,4 +52,7 @@
     "files.trimTrailingWhitespaceInRegexAndStrings": true,
     "files.insertFinalNewline": true,
     "editor.tabSize": 4,
+    "cSpell.words": [
+        "asgi"
+    ],
 }

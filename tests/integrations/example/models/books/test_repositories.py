@@ -7,9 +7,13 @@ import beanie
 import pytest
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from python_factory.example.entities.books import BookEntity, BookName, BookType
-from python_factory.example.models.books.document import BookDocument
-from python_factory.example.models.books.repository import BookRepository
+from fastapi_factory_utilities.example.entities.books import (
+    BookEntity,
+    BookName,
+    BookType,
+)
+from fastapi_factory_utilities.example.models.books.document import BookDocument
+from fastapi_factory_utilities.example.models.books.repository import BookRepository
 
 
 class TestBookRepository:
@@ -23,10 +27,10 @@ class TestBookRepository:
             async_motor_database (AsyncIOMotorDatabase): The async motor database.
         """
         await beanie.init_beanie(database=async_motor_database, document_models=[BookDocument])  # pyright: ignore
-        book_repository = BookRepository(client=async_motor_database.client)
+        book_repository = BookRepository(database=async_motor_database)
 
-        book_entity_created: BookEntity = await book_repository.create(
-            book_to_be_created=BookEntity(
+        book_entity_created: BookEntity = await book_repository.insert(
+            entity=BookEntity(
                 id=uuid4(),
                 title=BookName("The Hobbit"),
                 book_type=BookType.FANTASY,
@@ -44,10 +48,10 @@ class TestBookRepository:
             async_motor_database (AsyncIOMotorDatabase): The async motor database.
         """
         await beanie.init_beanie(database=async_motor_database, document_models=[BookDocument])  # pyright: ignore
-        book_repository = BookRepository(client=async_motor_database.client)
+        book_repository = BookRepository(database=async_motor_database)
 
-        book_entity_created: BookEntity = await book_repository.create(
-            book_to_be_created=BookEntity(
+        book_entity_created: BookEntity = await book_repository.insert(
+            entity=BookEntity(
                 id=uuid4(),
                 title=BookName("The Hobbit"),
                 book_type=BookType.FANTASY,
@@ -55,7 +59,7 @@ class TestBookRepository:
         )
 
         book_entity_retrieved: BookEntity = cast(
-            BookEntity, await book_repository.get_one_by_id(document_id=book_entity_created.id)
+            BookEntity, await book_repository.get_one_by_id(entity_id=book_entity_created.id)
         )
 
         assert book_entity_retrieved.title == BookName("The Hobbit")
@@ -69,20 +73,20 @@ class TestBookRepository:
             async_motor_database (AsyncIOMotorDatabase): The async motor database.
         """
         await beanie.init_beanie(database=async_motor_database, document_models=[BookDocument])  # pyright: ignore
-        book_repository = BookRepository(client=async_motor_database.client)
+        book_repository = BookRepository(database=async_motor_database)
 
-        book_entity_created: BookEntity = await book_repository.create(
-            book_to_be_created=BookEntity(
+        book_entity_created: BookEntity = await book_repository.insert(
+            entity=BookEntity(
                 id=uuid4(),
                 title=BookName("The Hobbit"),
                 book_type=BookType.FANTASY,
             )
         )
 
-        await book_repository.delete_one_by_id(document_id=book_entity_created.id)
+        await book_repository.delete_one_by_id(entity_id=book_entity_created.id)
 
         book_entity_retrieved: BookEntity = cast(
-            BookEntity, await book_repository.get_one_by_id(document_id=book_entity_created.id)
+            BookEntity, await book_repository.get_one_by_id(entity_id=book_entity_created.id)
         )
 
         assert book_entity_retrieved is None

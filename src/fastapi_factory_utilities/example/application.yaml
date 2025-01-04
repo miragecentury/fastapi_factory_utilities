@@ -1,0 +1,26 @@
+---
+application:
+  service_name: fastapi_factory_utilities_example
+  service_namespace: fastapi_factory_utilities_example
+  title: Python Factory Example
+  description: An example application for Python Factory
+  version: 0.1.0
+  environment: ${ENVIRONMENT:development}
+  debug: ${APPLICATION_DEBUG:false}
+  reload: ${APPLICATION_RELOAD:false}
+
+plugins:
+  activate:
+    - opentelemetry_plugin
+    - odm_plugin
+
+opentelemetry:
+  activate: "${OTEL_ACTIVE:false}"
+
+odm:
+  uri: "${MONGO_URI:mongodb://localhost:27017}"
+  database: "test"
+
+logging:
+  - name: pymongo
+    level: INFO

@@ -8,7 +8,7 @@
             "name": "Python Debugger: Example",
             "type": "debugpy",
             "request": "launch",
-            "module": "python_factory.example",
+            "module": "fastapi_factory_utilities.example",
             "justMyCode": false
         },
         // Provide a configuration for debugging tests

@@ -1,10 +1,10 @@
 apiVersion: skaffold/v4beta11
 kind: Config
 metadata:
-  name: python_factory_example
+  name: fastapi_factory_utilities_example
 build:
   artifacts:
-    - image: python_factory_example
+    - image: fastapi_factory_utilities_example
       context: .
       runtimeType: python
       buildpacks:
@@ -24,13 +24,13 @@ build:
     useBuildkit: true
 
 test:
-  - image: python_factory_example
+  - image: fastapi_factory_utilities_example
     context: .
     custom:
       - command: "pre-commit run --all-files"
 portForward:
   - resourceType: container
-    resourceName: python_factory_example
+    resourceName: fastapi_factory_utilities_example
     port: 8000
     localPort: 8000
     address: localhost
@@ -45,9 +45,9 @@ profiles:
       docker:
         useCompose: false
         images:
-          - python_factory_example
+          - fastapi_factory_utilities_example
     test:
-      - image: python_factory_example
+      - image: fastapi_factory_utilities_example
         context: .
         custom:
           - command: "pre-commit run --all-files --hook-stage commit"
@@ -67,4 +67,4 @@ profiles:
       docker:
         useCompose: false
         images:
-          - python_factory_example
+          - fastapi_factory_utilities_example
