@@ -19,7 +19,7 @@ from fastapi_factory_utilities.example.models.books.repository import BookReposi
 class TestBookRepository:
     """Unit tests for the BookRepository class."""
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_create(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test create method.
 
@@ -40,7 +40,7 @@ class TestBookRepository:
         assert book_entity_created.title == BookName("The Hobbit")
         assert book_entity_created.book_type == BookType.FANTASY
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_get_one_by_id(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test get_one_by_id method.
 
@@ -65,7 +65,7 @@ class TestBookRepository:
         assert book_entity_retrieved.title == BookName("The Hobbit")
         assert book_entity_retrieved.book_type == BookType.FANTASY
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_delete_one_by_id(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test delete_one_by_id method.
 

@@ -19,7 +19,7 @@ _logger = get_logger(__package__)
 class TestApiV1SysHealth:
     """Test the health endpoint."""
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_get_api_v1_sys_health(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test the get_api_v1_sys_health function."""
         with patch.dict(
