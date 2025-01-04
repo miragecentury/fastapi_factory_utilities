@@ -19,7 +19,7 @@ _logger = get_logger(__package__)
 class TestBooksRoutes:
     """Tests for the routes of the books API."""
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_get_books(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test get_books."""
         with patch.dict(

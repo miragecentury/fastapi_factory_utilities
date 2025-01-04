@@ -36,7 +36,7 @@ class RepositoryForTest(AbstractRepository[DocumentForTest, EntityForTest]):
 class TestAbstractRepository:
     """Test AbstractRepository class."""
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_insert(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test insert method."""
         await init_beanie(database=async_motor_database, document_models=[DocumentForTest])
@@ -48,7 +48,7 @@ class TestAbstractRepository:
         assert entity_created.id == entity_id
         assert entity_created.my_field == "my_field"
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_find_one(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test find_one method."""
         await init_beanie(database=async_motor_database, document_models=[DocumentForTest])
@@ -61,7 +61,7 @@ class TestAbstractRepository:
         assert entity_found.id == entity_id
         assert entity_found.my_field == "my_field"
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_delete_one(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test delete_one method."""
         await init_beanie(database=async_motor_database, document_models=[DocumentForTest])

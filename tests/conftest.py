@@ -8,6 +8,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
+import pytest_asyncio
 from mirakuru import TCPExecutor
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pytest_mongo import factories  # pyright: ignore[reportMissingTypeStubs]
@@ -66,7 +67,7 @@ def database_for_function(
     mongodb_with_flexible_executable.stop()
 
 
-@pytest.fixture(scope="function")  # pyright: ignore
+@pytest_asyncio.fixture(loop_scope="function")  # pyright: ignore
 async def async_motor_database(
     database_for_function: TCPExecutor,  # pylint: disable=redefined-outer-name
 ) -> AsyncGenerator[AsyncIOMotorDatabase[Any], None]:
@@ -125,7 +126,7 @@ def mongodb_server_as_container() -> Generator[MongoDbContainer, None, None]:
     mongodb_container.stop(delete_volume=True)
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def mongodb_async_database_from_container(
     mongodb_server_as_container: MongoDbContainer,  # pylint: disable=redefined-outer-name
 ) -> AsyncGenerator[AsyncIOMotorDatabase[Any], None]:
