@@ -9,17 +9,15 @@ from beanie import Document
 from fastapi import FastAPI
 
 from fastapi_factory_utilities.core.api import api
+from fastapi_factory_utilities.core.plugins import PluginsEnum
 from fastapi_factory_utilities.core.utils.log import LogModeEnum, setup_log
 
 from ..config import AppConfigAbstract, AppConfigBuilder
+from ..plugin_manager import PluginManager
 from .fastapi_application_abstract import FastAPIAbstract
-from .plugins_manager_abstract import (
-    ApplicationPluginManagerAbstract,
-    PluginsActivationList,
-)
 
 
-class BaseApplication(FastAPIAbstract, ApplicationPluginManagerAbstract):
+class BaseApplication(FastAPIAbstract):
     """Application abstract class."""
 
     PACKAGE_NAME: str = ""
@@ -28,7 +26,7 @@ class BaseApplication(FastAPIAbstract, ApplicationPluginManagerAbstract):
 
     ODM_DOCUMENT_MODELS: ClassVar[list[type[Document]]] = []
 
-    def __init__(self, config: AppConfigAbstract, plugin_activation_list: PluginsActivationList | None = None) -> None:
+    def __init__(self, config: AppConfigAbstract, plugin_activation_list: list[PluginsEnum] | None = None) -> None:
         """Instantiate the application.
 
         Args:
@@ -51,10 +49,9 @@ class BaseApplication(FastAPIAbstract, ApplicationPluginManagerAbstract):
             api_router=api,
             lifespan=cast(starlette.types.StatelessLifespan[starlette.types.ASGIApp], self.fastapi_lifespan),
         )
-        ApplicationPluginManagerAbstract.__init__(
-            self=cast(ApplicationPluginManagerAbstract, self), plugin_activation_list=plugin_activation_list
-        )
-        self._on_load()
+        self._plugin_manager: PluginManager = PluginManager(activated=plugin_activation_list)
+        self._plugin_manager.add_application_context(application=self)
+        self._plugin_manager.load()
 
     @classmethod
     def main(cls) -> None:
@@ -89,13 +86,13 @@ class BaseApplication(FastAPIAbstract, ApplicationPluginManagerAbstract):
 
     @classmethod
     def build(
-        cls, config: AppConfigAbstract | None = None, plugin_activation_list: PluginsActivationList | None = None
+        cls, config: AppConfigAbstract | None = None, plugin_activation_list: list[PluginsEnum] | None = None
     ) -> Self:
         """Build the application.
 
         Args:
             config (AppConfigAbstract | None, optional): The application configuration. Defaults to None.
-            plugin_activation_list (PluginsActivationList | None, optional): The plugins activation list.
+            plugin_activation_list (list[PluginsEnum] | None, optional): The plugins activation list.
             Defaults to None.
         """
         if config is None:
@@ -114,9 +111,9 @@ class BaseApplication(FastAPIAbstract, ApplicationPluginManagerAbstract):
             AsyncGenerator[None]: The lifespan context manager.
         """
         del fastapi_application
-        await self.plugins_on_startup()
+        await self._plugin_manager.trigger_startup()
         yield
-        await self.plugins_on_shutdown()
+        await self._plugin_manager.trigger_shutdown()
 
     def get_config(self) -> AppConfigAbstract:
         """Get the application configuration."""
