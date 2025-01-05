@@ -1,12 +1,12 @@
 """Provides the core application module for the Python Factory."""
 
 from .base import (
-    AppConfigAbstract,
     ApplicationConfigFactoryException,
     ApplicationFactoryException,
     BaseApplication,
     BaseApplicationException,
 )
+from .config import AppConfigAbstract
 from .enums import EnvironmentEnum
 
 __all__: list[str] = [
