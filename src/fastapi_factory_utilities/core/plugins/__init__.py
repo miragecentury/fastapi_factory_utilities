@@ -8,6 +8,7 @@ class PluginsEnum(StrEnum):
 
     OPENTELEMETRY_PLUGIN = auto()
     ODM_PLUGIN = auto()
+    HTTPX_PLUGIN = auto()
 
 
 __all__: list[str] = [
