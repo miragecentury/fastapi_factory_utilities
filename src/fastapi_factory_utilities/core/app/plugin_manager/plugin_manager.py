@@ -49,7 +49,7 @@ class PluginManager:
             ImportError: If the module cannot be imported.
             ModuleNotFoundError: If the module is not found.
         """
-        return import_module(name=name, package=package)
+        return import_module(name=f"{package}.{name}")
 
     @classmethod
     def _check_pre_conditions(
