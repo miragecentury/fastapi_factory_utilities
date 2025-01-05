@@ -7,8 +7,9 @@ from beanie import Document
 from fastapi import FastAPI
 
 if TYPE_CHECKING:
-    from fastapi_factory_utilities.core.app.base.config_abstract import (
-        AppConfigAbstract,
+    from fastapi_factory_utilities.core.app.config import AppConfigAbstract
+    from fastapi_factory_utilities.core.app.plugin_manager.plugin_state import (
+        PluginState,
     )
 
 
@@ -30,12 +31,7 @@ class BaseApplicationProtocol(Protocol):
 
 @runtime_checkable
 class PluginProtocol(Protocol):
-    """Defines the protocol for the plugin.
-
-    Attributes:
-        INJECTOR_MODULE (type[Module]): The module for the plugin.
-
-    """
+    """Defines the protocol for the plugins."""
 
     @abstractmethod
     def pre_conditions_check(self, application: BaseApplicationProtocol) -> bool:
@@ -49,7 +45,7 @@ class PluginProtocol(Protocol):
         """
 
     @abstractmethod
-    def on_load(self, application: BaseApplicationProtocol) -> None:
+    def on_load(self, application: BaseApplicationProtocol) -> list["PluginState"] | None:
         """The actions to perform on load for the plugin.
 
         Args:
@@ -60,7 +56,7 @@ class PluginProtocol(Protocol):
         """
 
     @abstractmethod
-    async def on_startup(self, application: BaseApplicationProtocol) -> None:
+    async def on_startup(self, application: BaseApplicationProtocol) -> list["PluginState"] | None:
         """The actions to perform on startup for the plugin.
 
         Args:
