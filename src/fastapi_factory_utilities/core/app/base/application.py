@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi_factory_utilities.core.api import api
 from fastapi_factory_utilities.core.utils.log import LogModeEnum, setup_log
 
-from .config_abstract import AppConfigAbstract, AppConfigBuilder
+from ..config import AppConfigAbstract, AppConfigBuilder
 from .fastapi_application_abstract import FastAPIAbstract
 from .plugins_manager_abstract import (
     ApplicationPluginManagerAbstract,
