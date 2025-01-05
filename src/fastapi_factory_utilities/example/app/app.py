@@ -5,9 +5,7 @@ from typing import ClassVar
 from beanie import Document
 
 from fastapi_factory_utilities.core.app import BaseApplication
-from fastapi_factory_utilities.core.app.base.plugins_manager_abstract import (
-    PluginsActivationList,
-)
+from fastapi_factory_utilities.core.plugins import PluginsEnum
 from fastapi_factory_utilities.example.models.books.document import BookDocument
 
 from .config import AppConfig
@@ -22,13 +20,17 @@ class App(BaseApplication):
 
     ODM_DOCUMENT_MODELS: ClassVar[list[type[Document]]] = [BookDocument]
 
-    def __init__(self, config: AppConfig, plugin_activation_list: PluginsActivationList | None = None) -> None:
+    DEFAULT_PLUGINS_ACTIVATED: ClassVar[list[PluginsEnum]] = [PluginsEnum.OPENTELEMETRY_PLUGIN, PluginsEnum.ODM_PLUGIN]
+
+    def __init__(self, config: AppConfig, plugin_activation_list: list[PluginsEnum] | None = None) -> None:
         """Instantiate the application with the configuration and the API router.
 
         Args:
             config (AppConfig): The application configuration.
             plugin_activation_list (PluginsActivationList | None, optional): The plugins activation list.
         """
+        if plugin_activation_list is None:
+            plugin_activation_list = self.DEFAULT_PLUGINS_ACTIVATED
         super().__init__(config=config, plugin_activation_list=plugin_activation_list)
 
         # Prevent circular imports

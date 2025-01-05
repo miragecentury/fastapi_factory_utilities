@@ -5,9 +5,6 @@ from pydantic import Field
 from fastapi_factory_utilities.core.app.base.exceptions import (
     ApplicationConfigFactoryException,
 )
-from fastapi_factory_utilities.core.app.base.plugins_manager_abstract import (
-    PluginsActivationList,
-)
 from fastapi_factory_utilities.core.utils.configs import (
     UnableToReadConfigFileError,
     ValueErrorConfigError,
@@ -19,7 +16,7 @@ from .base.fastapi_application_abstract import FastAPIConfigAbstract
 from .enums import EnvironmentEnum
 
 
-class AppConfigAbstract(FastAPIConfigAbstract, PluginsActivationList):
+class AppConfigAbstract(FastAPIConfigAbstract):
     """Application configuration abstract class."""
 
     # Application configuration
