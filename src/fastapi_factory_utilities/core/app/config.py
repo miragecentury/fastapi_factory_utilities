@@ -15,18 +15,21 @@ from fastapi_factory_utilities.core.utils.configs import (
 )
 from fastapi_factory_utilities.core.utils.log import LoggingConfig
 
-from ..enums import EnvironmentEnum
-from .fastapi_application_abstract import FastAPIConfigAbstract
+from .base.fastapi_application_abstract import FastAPIConfigAbstract
+from .enums import EnvironmentEnum
 
 
 class AppConfigAbstract(FastAPIConfigAbstract, PluginsActivationList):
     """Application configuration abstract class."""
 
+    # Application configuration
+    # (mainly used for monitoring and information reporting)
     environment: EnvironmentEnum
     service_name: str
     service_namespace: str
 
-    logging: list[LoggingConfig] = Field(default_factory=list, description="Logging configuration.")
+    # Logging configuration
+    logging: list[LoggingConfig] = Field(default_factory=list, description="Dynamic Logging configuration")
 
 
 class AppConfigBuilder:
