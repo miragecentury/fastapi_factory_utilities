@@ -76,7 +76,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "tests/units tests/integrations -n auto --color=yes --import-mode=importlib"
+addopts = "tests/units tests/integrations -n auto --color=yes --no-cov"
 filterwarnings = [
     "ignore:.*Type google._upb._message.MessageMapContainer:DeprecationWarning",
     "ignore:.*Type google._upb._message.ScalarMapContainer:DeprecationWarning",
