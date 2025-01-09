@@ -11,17 +11,22 @@ from starlette.routing import Route
 
 from fastapi_factory_utilities.core.app.base.fastapi_application_abstract import (
     FastAPIAbstract,
-    FastAPIConfigAbstract,
 )
+from fastapi_factory_utilities.core.app.config import BaseApplicationConfig, RootConfig
+from fastapi_factory_utilities.core.app.enums import EnvironmentEnum
 
 
 class TestFastAPIApplicationAbstract:
     """Test FastAPIApplicationAbstract."""
 
-    DUMMY_CONFIG = FastAPIConfigAbstract(
-        title="Dummy",
-        description="Dummy description",
-        version="0.1.0",
+    DUMMY_CONFIG = RootConfig(
+        application=BaseApplicationConfig(
+            service_name="Dummy",
+            service_namespace="dummy",
+            description="Dummy description",
+            environment=EnvironmentEnum.DEVELOPMENT,
+            version="0.1.0",
+        )
     )
 
     def test_validate_fastapi_app_is_instanciate_correctly(self) -> None:
@@ -36,9 +41,9 @@ class TestFastAPIApplicationAbstract:
         assert isinstance(fastapi_app, fastapi.FastAPI)
 
         # Assert FastAPI application configuration
-        assert fastapi_app.title == self.DUMMY_CONFIG.title
-        assert fastapi_app.description == self.DUMMY_CONFIG.description
-        assert fastapi_app.version == self.DUMMY_CONFIG.version
+        assert fastapi_app.title == self.DUMMY_CONFIG.application.service_name
+        assert fastapi_app.description == self.DUMMY_CONFIG.application.description
+        assert fastapi_app.version == self.DUMMY_CONFIG.application.version
 
         # Assert FastAPI application router is included
         assert fastapi_app.router is not None

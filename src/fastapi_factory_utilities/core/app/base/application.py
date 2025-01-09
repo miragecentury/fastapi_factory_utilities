@@ -12,7 +12,7 @@ from fastapi_factory_utilities.core.api import api
 from fastapi_factory_utilities.core.plugins import PluginsEnum
 from fastapi_factory_utilities.core.utils.log import LogModeEnum, setup_log
 
-from ..config import AppConfigAbstract, AppConfigBuilder
+from ..config import RootConfig, RootConfigBuilder
 from ..plugin_manager import PluginManager
 from .fastapi_application_abstract import FastAPIAbstract
 
@@ -22,11 +22,11 @@ class BaseApplication(FastAPIAbstract):
 
     PACKAGE_NAME: str = ""
 
-    CONFIG_CLASS: ClassVar[type[AppConfigAbstract]] = AppConfigAbstract
+    CONFIG_CLASS: ClassVar[type[RootConfig]] = RootConfig
 
     ODM_DOCUMENT_MODELS: ClassVar[list[type[Document]]] = []
 
-    def __init__(self, config: AppConfigAbstract, plugin_activation_list: list[PluginsEnum] | None = None) -> None:
+    def __init__(self, config: RootConfig, plugin_activation_list: list[PluginsEnum] | None = None) -> None:
         """Instantiate the application.
 
         Args:
@@ -42,7 +42,7 @@ class BaseApplication(FastAPIAbstract):
         if self.PACKAGE_NAME == "":
             raise ValueError("The package name must be set in the concrete application class.")
 
-        self._config: AppConfigAbstract = config
+        self._config: RootConfig = config
         FastAPIAbstract.__init__(
             self=cast(FastAPIAbstract, self),
             config=self._config,
@@ -73,21 +73,19 @@ class BaseApplication(FastAPIAbstract):
             pass
 
     @classmethod
-    def build_config(cls) -> AppConfigAbstract:
+    def build_config(cls) -> RootConfig:
         """Build the application configuration.
 
         Returns:
             AppConfigAbstract: The application configuration.
         """
-        config_builder: AppConfigBuilder = AppConfigBuilder(
+        config_builder: RootConfigBuilder = RootConfigBuilder(
             package_name=cls.PACKAGE_NAME, config_class=cls.CONFIG_CLASS
         )
         return config_builder.build()
 
     @classmethod
-    def build(
-        cls, config: AppConfigAbstract | None = None, plugin_activation_list: list[PluginsEnum] | None = None
-    ) -> Self:
+    def build(cls, config: RootConfig | None = None, plugin_activation_list: list[PluginsEnum] | None = None) -> Self:
         """Build the application.
 
         Args:
@@ -115,6 +113,6 @@ class BaseApplication(FastAPIAbstract):
         yield
         await self._plugin_manager.trigger_shutdown()
 
-    def get_config(self) -> AppConfigAbstract:
+    def get_config(self) -> RootConfig:
         """Get the application configuration."""
         return self._config

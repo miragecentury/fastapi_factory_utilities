@@ -16,11 +16,11 @@ from fastapi_factory_utilities.example.models.books.document import BookDocument
 from fastapi_factory_utilities.example.models.books.repository import BookRepository
 
 
-class TestBookRepository:
+class TestIntegrationBookRepository:
     """Unit tests for the BookRepository class."""
 
     @pytest.mark.asyncio()
-    async def test_create(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
+    async def test_book_create(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test create method.
 
         Args:
@@ -41,7 +41,7 @@ class TestBookRepository:
         assert book_entity_created.book_type == BookType.FANTASY
 
     @pytest.mark.asyncio()
-    async def test_get_one_by_id(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
+    async def test_book_get_one_by_id(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test get_one_by_id method.
 
         Args:
@@ -66,7 +66,7 @@ class TestBookRepository:
         assert book_entity_retrieved.book_type == BookType.FANTASY
 
     @pytest.mark.asyncio()
-    async def test_delete_one_by_id(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
+    async def test_book_delete_one_by_id(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test delete_one_by_id method.
 
         Args:

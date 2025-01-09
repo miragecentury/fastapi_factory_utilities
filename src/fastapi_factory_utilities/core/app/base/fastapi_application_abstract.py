@@ -6,32 +6,8 @@ from typing import Any
 import starlette.types
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict, Field
 
-
-class FastAPIConfigAbstract(ABC, BaseModel):
-    """Partial configuration for FastAPI."""
-
-    model_config = ConfigDict(strict=False)
-
-    # Application metadata
-    title: str
-    description: str
-    version: str
-
-    # Host configuration
-    host: str = Field(default="0.0.0.0")
-    port: int = Field(default=8000)
-
-    # Root configuration
-    root_path: str = Field(default="")
-
-    # Debug mode
-    debug: bool = Field(default=False, strict=False)
-
-    # Uvicorn configuration
-    reload: bool = Field(default=False, strict=False)
-    workers: int = Field(default=1, strict=False)
+from fastapi_factory_utilities.core.app.config import RootConfig
 
 
 class FastAPIAbstract(ABC):
@@ -42,7 +18,7 @@ class FastAPIAbstract(ABC):
 
     def __init__(
         self,
-        config: FastAPIConfigAbstract,
+        config: RootConfig,
         api_router: APIRouter | None = None,
         lifespan: starlette.types.StatelessLifespan[starlette.types.ASGIApp] | None = None,
     ) -> None:
@@ -59,11 +35,11 @@ class FastAPIAbstract(ABC):
 
         """
         self._fastapi_app: FastAPI = FastAPI(
-            title=config.title,
-            description=config.description,
-            version=config.version,
-            root_path=config.root_path,
-            debug=config.debug,
+            title=config.application.service_name,
+            description=config.application.description,
+            version=config.application.version,
+            root_path=config.application.root_path,
+            debug=config.development.debug,
             lifespan=lifespan,
         )
 

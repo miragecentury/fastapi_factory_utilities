@@ -7,7 +7,7 @@ from beanie import Document
 from fastapi import FastAPI
 
 if TYPE_CHECKING:
-    from fastapi_factory_utilities.core.app.config import AppConfigAbstract
+    from fastapi_factory_utilities.core.app.config import RootConfig
     from fastapi_factory_utilities.core.app.plugin_manager.plugin_state import (
         PluginState,
     )
@@ -21,7 +21,7 @@ class BaseApplicationProtocol(Protocol):
     ODM_DOCUMENT_MODELS: ClassVar[list[type[Document]]]
 
     @abstractmethod
-    def get_config(self) -> "AppConfigAbstract":
+    def get_config(self) -> "RootConfig":
         """Get the application configuration."""
 
     @abstractmethod

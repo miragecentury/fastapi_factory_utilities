@@ -30,10 +30,10 @@ class UvicornUtils:
         """
         config = uvicorn.Config(
             app=self._app.get_asgi_app(),
-            host=self._app.get_config().host,
-            port=self._app.get_config().port,
-            reload=self._app.get_config().reload,
-            workers=self._app.get_config().workers,
+            host=self._app.get_config().server.host,
+            port=self._app.get_config().server.port,
+            reload=self._app.get_config().development.reload,
+            workers=self._app.get_config().server.workers,
         )
         clean_uvicorn_logger()
         return config
