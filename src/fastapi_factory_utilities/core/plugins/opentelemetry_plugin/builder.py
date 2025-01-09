@@ -94,10 +94,10 @@ class OpenTelemetryPluginBuilder:
         """
         self._resource = Resource(
             attributes={
-                DEPLOYMENT_ENVIRONMENT: self._application.get_config().environment.value,
-                SERVICE_NAME: self._application.get_config().service_name,
-                SERVICE_NAMESPACE: self._application.get_config().service_namespace,
-                SERVICE_VERSION: self._application.get_config().version,
+                DEPLOYMENT_ENVIRONMENT: self._application.get_config().application.environment.value,
+                SERVICE_NAME: self._application.get_config().application.service_name,
+                SERVICE_NAMESPACE: self._application.get_config().application.service_namespace,
+                SERVICE_VERSION: self._application.get_config().application.version,
             }
         )
         return self

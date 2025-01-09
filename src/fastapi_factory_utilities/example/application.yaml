@@ -1,11 +1,12 @@
 ---
 application:
-  service_name: example
+  service_name: Example Application
   service_namespace: fastapi_factory_utilities
-  title: Example
   description: An example application using fastapi-factory-utilities
   version: 0.1.0
   environment: ${ENVIRONMENT:development}
+
+development:
   debug: ${APPLICATION_DEBUG:false}
   reload: ${APPLICATION_RELOAD:false}
 

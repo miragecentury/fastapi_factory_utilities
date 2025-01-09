@@ -6,12 +6,12 @@ from .base import (
     BaseApplication,
     BaseApplicationException,
 )
-from .config import AppConfigAbstract
+from .config import BaseApplicationConfig
 from .enums import EnvironmentEnum
 
 __all__: list[str] = [
     "BaseApplication",
-    "AppConfigAbstract",
+    "BaseApplicationConfig",
     "EnvironmentEnum",
     "ApplicationConfigFactoryException",
     "ApplicationFactoryException",

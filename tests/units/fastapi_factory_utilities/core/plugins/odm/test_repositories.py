@@ -8,7 +8,7 @@ from fastapi_factory_utilities.core.plugins.odm_plugin.repositories import (
 )
 
 
-class TestRepositories:
+class TestUnitRepositories:
     """Unit tests for the repositories module."""
 
     def test_concrete_type_retrieval(self) -> None:
