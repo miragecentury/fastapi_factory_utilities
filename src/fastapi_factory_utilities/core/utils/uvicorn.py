@@ -3,24 +3,23 @@
 import uvicorn
 import uvicorn.server
 
-from fastapi_factory_utilities.core.protocols import BaseApplicationProtocol
+from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
 from fastapi_factory_utilities.core.utils.log import clean_uvicorn_logger
 
 
 class UvicornUtils:
     """Provides utilities for Uvicorn."""
 
-    def __init__(self, app: BaseApplicationProtocol) -> None:
+    def __init__(self, app: ApplicationAbstractProtocol) -> None:
         """Instantiate the factory.
 
         Args:
             app (BaseApplication): The application.
-            config (AppConfigAbstract): The application configuration.
 
         Returns:
             None
         """
-        self._app: BaseApplicationProtocol = app
+        self._app: ApplicationAbstractProtocol = app
 
     def build_uvicorn_config(self) -> uvicorn.Config:
         """Build the Uvicorn configuration.
