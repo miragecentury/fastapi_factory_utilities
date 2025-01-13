@@ -10,7 +10,7 @@ from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.trace import TracerProvider
 from structlog.stdlib import BoundLogger, get_logger
 
-from fastapi_factory_utilities.core.protocols import BaseApplicationProtocol
+from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
 
 from .builder import OpenTelemetryPluginBuilder
 from .configs import OpenTelemetryConfig
@@ -26,7 +26,7 @@ __all__: list[str] = [
 _logger: BoundLogger = get_logger()
 
 
-def pre_conditions_check(application: BaseApplicationProtocol) -> bool:
+def pre_conditions_check(application: ApplicationAbstractProtocol) -> bool:
     """Check the pre-conditions for the OpenTelemetry plugin.
 
     Args:
@@ -40,7 +40,7 @@ def pre_conditions_check(application: BaseApplicationProtocol) -> bool:
 
 
 def on_load(
-    application: BaseApplicationProtocol,
+    application: ApplicationAbstractProtocol,
 ) -> None:
     """Actions to perform on load for the OpenTelemetry plugin.
 
@@ -71,7 +71,7 @@ def on_load(
 
 
 async def on_startup(
-    application: BaseApplicationProtocol,
+    application: ApplicationAbstractProtocol,
 ) -> None:
     """Actions to perform on startup for the OpenTelemetry plugin.
 
@@ -85,7 +85,7 @@ async def on_startup(
     _logger.debug("OpenTelemetry plugin started.")
 
 
-async def on_shutdown(application: BaseApplicationProtocol) -> None:
+async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
     """Actions to perform on shutdown for the OpenTelemetry plugin.
 
     Args:

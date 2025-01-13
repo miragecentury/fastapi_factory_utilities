@@ -13,10 +13,9 @@ from fastapi_factory_utilities.core.app.plugin_manager.exceptions import (
 from fastapi_factory_utilities.core.app.plugin_manager.plugin_manager import (
     PluginManager,
 )
-from fastapi_factory_utilities.core.app.plugin_manager.plugin_state import PluginState
-from fastapi_factory_utilities.core.plugins import PluginsEnum
+from fastapi_factory_utilities.core.plugins import PluginsEnum, PluginState
 from fastapi_factory_utilities.core.protocols import (
-    BaseApplicationProtocol,
+    ApplicationAbstractProtocol,
     PluginProtocol,
 )
 
@@ -34,7 +33,7 @@ class TestPluginManger:
         """Test the valid plugin."""
         # Arrange
         plugin_manager = PluginManager()
-        application = MagicMock(BaseApplicationProtocol)
+        application = MagicMock(ApplicationAbstractProtocol)
         with patch(
             "fastapi_factory_utilities.core.app.plugin_manager.plugin_manager.PluginManager._import_module"
         ) as mock_import_module:
@@ -54,7 +53,7 @@ class TestPluginManger:
         """Test the invalid plugin."""
         # Arrange
         plugin_manager = PluginManager()
-        application = MagicMock(BaseApplicationProtocol)
+        application = MagicMock(ApplicationAbstractProtocol)
         with patch(
             "fastapi_factory_utilities.core.app.plugin_manager.plugin_manager.PluginManager._import_module"
         ) as mock_import_module:
@@ -79,7 +78,7 @@ class TestPluginManger:
         """Test the import error."""
         # Arrange
         plugin_manager = PluginManager()
-        application = MagicMock(BaseApplicationProtocol)
+        application = MagicMock(ApplicationAbstractProtocol)
         with patch(
             "fastapi_factory_utilities.core.app.plugin_manager.plugin_manager.PluginManager._import_module"
         ) as mock_import_module:
@@ -97,7 +96,7 @@ class TestPluginManger:
         """Test the successful load of a plugin."""
         # Arrange
         plugin_manager = PluginManager()
-        application = MagicMock(BaseApplicationProtocol)
+        application = MagicMock(ApplicationAbstractProtocol)
         plugin_mock = MagicMock(PluginProtocol)
         plugin_mock.on_load = MagicMock(return_value=[PluginState(key="test", value="test")])
 
@@ -114,14 +113,15 @@ class TestPluginManger:
         assert plugin_mock.on_load.call_count == 1
 
         assert len(plugin_manager.states) == 1
-        assert plugin_manager.states["test"].value == "test"
+        assert plugin_manager.states[0].key == "test"
+        assert plugin_manager.states[0].value == "test"
 
     @pytest.mark.asyncio
     async def test_successfull_trigger_of_plugins(self) -> None:
         """Test the successful trigger of a plugin."""
         # Arrange
         plugin_manager = PluginManager()
-        application = MagicMock(BaseApplicationProtocol)
+        application = MagicMock(ApplicationAbstractProtocol)
         plugin_mock = MagicMock(PluginProtocol)
         plugin_mock.on_startup = AsyncMock(return_value=[PluginState(key="startup", value="startup")])
         plugin_mock.on_shutdown = AsyncMock()
@@ -143,4 +143,5 @@ class TestPluginManger:
         assert plugin_mock.on_shutdown.call_count == 1
 
         assert len(plugin_manager.states) == 1
-        assert plugin_manager.states["startup"].value == "startup"
+        assert plugin_manager.states[0].value == "startup"
+        assert plugin_manager.states[0].key == "startup"

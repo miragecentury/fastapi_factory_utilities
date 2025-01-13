@@ -11,7 +11,7 @@ from httpx import Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from structlog.stdlib import get_logger
 
-from fastapi_factory_utilities.example.app.app import App
+from fastapi_factory_utilities.example.app import AppBuilder
 
 _logger = get_logger(__package__)
 
@@ -32,6 +32,6 @@ class TestBooksRoutes:
         ):
             _logger.debug(f"MONGO_URI={os.getenv('MONGO_URI')}")
 
-            with TestClient(App.build()) as client:
+            with TestClient(app=AppBuilder().build()) as client:
                 response: Response = client.get("/api/v1/books")
                 assert response.status_code == HTTPStatus.OK

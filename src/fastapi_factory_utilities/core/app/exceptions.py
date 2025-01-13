@@ -7,19 +7,7 @@ class BaseApplicationException(BaseException):
     pass
 
 
-class ApplicationFactoryException(BaseApplicationException):
-    """Application factory exception."""
-
-    pass
-
-
 class ApplicationConfigFactoryException(BaseApplicationException):
     """Application configuration factory exception."""
-
-    pass
-
-
-class ApplicationPluginManagerException(BaseApplicationException):
-    """Application plugin manager exception."""
 
     pass

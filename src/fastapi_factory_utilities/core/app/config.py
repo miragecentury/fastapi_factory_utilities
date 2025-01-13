@@ -4,7 +4,7 @@ from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from fastapi_factory_utilities.core.app.base.exceptions import (
+from fastapi_factory_utilities.core.app.exceptions import (
     ApplicationConfigFactoryException,
 )
 from fastapi_factory_utilities.core.utils.configs import (
