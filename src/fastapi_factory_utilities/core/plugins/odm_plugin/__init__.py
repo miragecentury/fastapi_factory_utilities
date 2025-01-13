@@ -7,14 +7,15 @@ from beanie import init_beanie  # pyright: ignore[reportUnknownVariableType]
 from motor.motor_asyncio import AsyncIOMotorClient
 from structlog.stdlib import BoundLogger, get_logger
 
-from fastapi_factory_utilities.core.protocols import BaseApplicationProtocol
+from fastapi_factory_utilities.core.plugins import PluginState
+from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
 
 from .builder import ODMBuilder
 
 _logger: BoundLogger = get_logger()
 
 
-def pre_conditions_check(application: BaseApplicationProtocol) -> bool:
+def pre_conditions_check(application: ApplicationAbstractProtocol) -> bool:
     """Check the pre-conditions for the OpenTelemetry plugin.
 
     Args:
@@ -28,8 +29,8 @@ def pre_conditions_check(application: BaseApplicationProtocol) -> bool:
 
 
 def on_load(
-    application: BaseApplicationProtocol,
-) -> None:
+    application: ApplicationAbstractProtocol,
+) -> list["PluginState"] | None:
     """Actions to perform on load for the OpenTelemetry plugin.
 
     Args:
@@ -43,8 +44,8 @@ def on_load(
 
 
 async def on_startup(
-    application: BaseApplicationProtocol,
-) -> None:
+    application: ApplicationAbstractProtocol,
+) -> list["PluginState"] | None:
     """Actions to perform on startup for the ODM plugin.
 
     Args:
@@ -68,7 +69,7 @@ async def on_startup(
     # TODO: Find a way to add type to the state
     application.get_asgi_app().state.odm_client = odm_factory.odm_client
     application.get_asgi_app().state.odm_database = odm_factory.odm_database
-
+    _logger.info("ODM plugin states added to the FastAPI app.")
     # TODO: Find a better way to initialize beanie with the document models of the concrete application
     # through an hook in the application ?
     await init_beanie(
@@ -82,8 +83,16 @@ async def on_startup(
         f"Document models: {application.ODM_DOCUMENT_MODELS}"
     )
 
+    return [
+        PluginState(key="odm_client", value=odm_factory.odm_client),
+        PluginState(
+            key="odm_database",
+            value=odm_factory.odm_database,
+        ),
+    ]
 
-async def on_shutdown(application: BaseApplicationProtocol) -> None:
+
+async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
     """Actions to perform on shutdown for the ODM plugin.
 
     Args:

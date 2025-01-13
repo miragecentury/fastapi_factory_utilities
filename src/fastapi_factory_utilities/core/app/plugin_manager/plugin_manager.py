@@ -15,18 +15,13 @@ from importlib import import_module
 from types import ModuleType
 from typing import Self
 
-from fastapi_factory_utilities.core.app.plugin_manager.plugin_state import PluginState
-from fastapi_factory_utilities.core.plugins import PluginsEnum
+from fastapi_factory_utilities.core.plugins import PluginsEnum, PluginState
 from fastapi_factory_utilities.core.protocols import (
-    BaseApplicationProtocol,
+    ApplicationAbstractProtocol,
     PluginProtocol,
 )
 
-from .exceptions import (
-    InvalidPluginError,
-    PluginManagerError,
-    PluginPreConditionNotMetError,
-)
+from .exceptions import InvalidPluginError, PluginPreConditionNotMetError
 
 
 class PluginManager:
@@ -53,7 +48,7 @@ class PluginManager:
 
     @classmethod
     def _check_pre_conditions(
-        cls, plugin_package: str, want_to_activate_plugins: list[PluginsEnum], application: BaseApplicationProtocol
+        cls, plugin_package: str, want_to_activate_plugins: list[PluginsEnum], application: ApplicationAbstractProtocol
     ) -> list[PluginProtocol]:
         """Check the pre-conditions for the plugins.
 
@@ -103,14 +98,27 @@ class PluginManager:
         self._plugin_package: str = plugin_package or self.DEFAULT_PLUGIN_PACKAGE
         self._plugins_wanted_to_be_activated: list[PluginsEnum] = activated or []
         self._activated_plugins: list[PluginProtocol] = []
-        self._states: dict[str, PluginState] = {}
+        self._states: list[PluginState] = []
+
+    def activate(self, plugin: PluginsEnum) -> Self:
+        """Activate a plugin.
+
+        Args:
+            plugin (PluginsEnum): The plugin to activate.
+
+        Returns:
+            Self: The plugin manager.
+        """
+        self._plugins_wanted_to_be_activated.append(plugin)
+
+        return self
 
     @property
-    def states(self) -> dict[str, PluginState]:
+    def states(self) -> list[PluginState]:
         """Get the states."""
         return self._states
 
-    def add_application_context(self, application: BaseApplicationProtocol) -> Self:
+    def add_application_context(self, application: ApplicationAbstractProtocol) -> Self:
         """Add the application context to the plugins.
 
         Args:
@@ -119,7 +127,7 @@ class PluginManager:
         Returns:
             Self: The plugin manager.
         """
-        self._application: BaseApplicationProtocol = application
+        self._application: ApplicationAbstractProtocol = application
 
         return self
 
@@ -133,10 +141,12 @@ class PluginManager:
             Self: The plugin manager.
         """
         for state in states:
-            if state.key in self._states:
-                raise PluginManagerError(f"The state with key {state.key} already exists.")
-            self._states[state.key] = state
+            self._states.append(state)
+        return self
 
+    def clear_states(self) -> Self:
+        """Clear the states."""
+        self._states = []
         return self
 
     def load(self) -> Self:
@@ -150,6 +160,8 @@ class PluginManager:
             PluginPreConditionNotMetError: If the pre-conditions are not met.
 
         """
+        # Remove duplicates.
+        self._plugins_wanted_to_be_activated = list(set(self._plugins_wanted_to_be_activated))
         # Check the pre-conditions for the plugins.
         self._activated_plugins = self._check_pre_conditions(
             plugin_package=self._plugin_package,
@@ -165,7 +177,8 @@ class PluginManager:
     async def trigger_startup(self) -> Self:
         """Trigger the startup of the plugins."""
         for plugin in self._activated_plugins:
-            self.add_states(states=await plugin.on_startup(application=self._application) or [])
+            states: list[PluginState] | None = await plugin.on_startup(application=self._application)
+            self.add_states(states=states or [])
 
         return self
 

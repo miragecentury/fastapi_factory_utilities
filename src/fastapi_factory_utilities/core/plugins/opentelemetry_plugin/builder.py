@@ -24,7 +24,7 @@ from fastapi_factory_utilities.core.plugins.opentelemetry_plugin.configs import 
     OpenTelemetryMeterConfig,
     OpenTelemetryTracerConfig,
 )
-from fastapi_factory_utilities.core.protocols import BaseApplicationProtocol
+from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
 from fastapi_factory_utilities.core.utils.importlib import get_path_file_in_package
 from fastapi_factory_utilities.core.utils.yaml_reader import (
     UnableToReadYamlFileError,
@@ -38,13 +38,13 @@ from .exceptions import OpenTelemetryPluginConfigError
 class OpenTelemetryPluginBuilder:
     """Configure the injection bindings for OpenTelemetryPlugin."""
 
-    def __init__(self, application: BaseApplicationProtocol) -> None:
+    def __init__(self, application: ApplicationAbstractProtocol) -> None:
         """Instantiate the OpenTelemetryPluginFactory.
 
         Args:
             application (BaseApplicationProtocol): The application object.
         """
-        self._application: BaseApplicationProtocol = application
+        self._application: ApplicationAbstractProtocol = application
         self._resource: Resource | None = None
         self._config: OpenTelemetryConfig | None = None
         self._meter_provider: MeterProvider | None = None
