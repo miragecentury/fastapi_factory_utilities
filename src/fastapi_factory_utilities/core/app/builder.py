@@ -26,9 +26,11 @@ class ApplicationGenericBuilder(Generic[T]):
         self._fastapi_builder: FastAPIBuilder | None = None
         generic_args: tuple[Any, ...] = get_args(self.__orig_bases__[0])  # type: ignore
         self._application_class: type[T] = generic_args[0]
-        self._plugins_activation_list: list[PluginsEnum] = (
-            plugins_activation_list or self._application_class.DEFAULT_PLUGINS_ACTIVATED
-        )
+        self._plugins_activation_list: list[PluginsEnum]
+        if plugins_activation_list is None:
+            self._plugins_activation_list = self._application_class.DEFAULT_PLUGINS_ACTIVATED
+        else:
+            self._plugins_activation_list = plugins_activation_list
 
     def add_plugin_to_activate(self, plugin: PluginsEnum) -> Self:
         """Add a plugin to activate.
