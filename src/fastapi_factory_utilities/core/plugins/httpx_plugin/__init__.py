@@ -3,9 +3,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fastapi_factory_utilities.core.app.plugin_manager.plugin_state import (
-        PluginState,
-    )
+    from fastapi_factory_utilities.core.plugins import PluginState
     from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
 
 
