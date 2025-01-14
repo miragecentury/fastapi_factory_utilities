@@ -76,14 +76,18 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "tests/units tests/integrations -n auto --color=yes --no-cov"
+testpaths = [
+    "tests/units",
+    "tests/integration",
+]
+addopts = "--import-mode=importlib -n auto --color=yes"
 filterwarnings = [
     "ignore:.*Type google._upb._message.MessageMapContainer:DeprecationWarning",
     "ignore:.*Type google._upb._message.ScalarMapContainer:DeprecationWarning",
     "ignore:.*pkg_resources is deprecated as an API.:DeprecationWarning",
 ]
 asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "session"
+asyncio_default_fixture_loop_scope = "function"
 mongo_params = ""
 
 [tool.black]
