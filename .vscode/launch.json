@@ -23,9 +23,6 @@
                 "debug-test",
                 "debug-in-terminal"
             ],
-            "env": {
-                "PYTEST_ADDOPTS": "--no-cov"
-            },
             "pythonArgs": [
                 "-Xfrozen_modules=off"
             ]
