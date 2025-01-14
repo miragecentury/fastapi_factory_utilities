@@ -38,6 +38,7 @@ opentelemetry-propagator-b3 = "^1.26.0"
 beanie = "^1.27.0"
 opentelemetry-instrumentation-pymongo = "^0.49b2"
 pymongo = "~4.9.2" # version fixed to fix integration between beanie and pytest-mongo
+pyaml = "^25.1.0"
 
 [tool.poetry.group.test]
 optional = true
