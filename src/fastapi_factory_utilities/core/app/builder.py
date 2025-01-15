@@ -2,7 +2,7 @@
 
 from typing import Any, Generic, Self, TypeVar, get_args
 
-from fastapi_factory_utilities.core.app.config import RootConfig, RootConfigBuilder
+from fastapi_factory_utilities.core.app.config import GenericConfigBuilder, RootConfig
 from fastapi_factory_utilities.core.app.fastapi_builder import FastAPIBuilder
 from fastapi_factory_utilities.core.app.plugin_manager.plugin_manager import (
     PluginManager,
@@ -82,7 +82,7 @@ class ApplicationGenericBuilder(Generic[T]):
 
     def _build_from_package_root_config(self) -> RootConfig:
         """Build the configuration from the package."""
-        return RootConfigBuilder(
+        return GenericConfigBuilder[self._application_class.CONFIG_CLASS](
             package_name=self._application_class.PACKAGE_NAME,
             config_class=self._application_class.CONFIG_CLASS,
         ).build()

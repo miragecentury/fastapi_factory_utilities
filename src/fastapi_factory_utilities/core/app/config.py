@@ -1,6 +1,6 @@
 """Provide the configuration for the app server."""
 
-from typing import ClassVar
+from typing import Any, ClassVar, Generic, TypeVar, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -36,21 +36,31 @@ class CorsConfig(BaseModel):
 class ServerConfig(BaseModel):
     """Server configuration."""
 
+    # Pydantic configuration
+    model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True, extra="forbid")
+
+    # Server configuration mainly used by uvicorn
     host: str = Field(default="0.0.0.0", description="Server host")
     port: int = Field(default=8000, description="Server port")
-
     workers: int = Field(default=1, description="Number of workers")
 
 
 class DevelopmentConfig(BaseModel):
     """Development configuration."""
 
+    # Pydantic configuration
+    model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True, extra="forbid")
+
+    # Development configuration
     debug: bool = Field(default=False, description="Debug mode")
     reload: bool = Field(default=False, description="Reload mode")
 
 
 class BaseApplicationConfig(BaseModel):
     """Application configuration abstract class."""
+
+    # Pydantic configuration
+    model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True, extra="forbid")
 
     # Application configuration
     # (mainly used for monitoring and information reporting)
@@ -59,15 +69,18 @@ class BaseApplicationConfig(BaseModel):
     service_name: str = Field(description="Service name")
     description: str = Field(description="Service description")
     version: str = Field(description="Service version")
-
+    # Root path for the application
     root_path: str = Field(default="", description="Root path")
 
 
 class RootConfig(BaseModel):
     """Root configuration."""
 
+    # Pydantic configuration
+    # extra = Extra.ignore, to be able to add extra categories for your application purposes
     model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True, extra="ignore")
 
+    # Root configuration with all sub configurations
     application: BaseApplicationConfig = Field(description="Application configuration")
     server: ServerConfig = Field(description="Server configuration", default_factory=ServerConfig)
     cors: CorsConfig = Field(description="CORS configuration", default_factory=CorsConfig)
@@ -75,8 +88,15 @@ class RootConfig(BaseModel):
     logging: list[LoggingConfig] = Field(description="Logging configuration", default_factory=list)
 
 
-class RootConfigBuilder:
-    """Application configuration builder."""
+GenericConfig = TypeVar("GenericConfig", bound=BaseModel)
+
+
+class GenericConfigBuilder(Generic[GenericConfig]):
+    """Application configuration builder.
+
+    This class is used to build the application configuration from a YAML file.
+    It can be used to build any configuration model
+    """
 
     DEFAULT_FILENAME: str = "application.yaml"
     DEFAULT_YAML_BASE_KEY: str | None = None
@@ -84,7 +104,7 @@ class RootConfigBuilder:
     def __init__(
         self,
         package_name: str,
-        config_class: type[RootConfig],
+        config_class: type[GenericConfig] | None = None,
         filename: str = DEFAULT_FILENAME,
         yaml_base_key: str | None = DEFAULT_YAML_BASE_KEY,
     ) -> None:
@@ -97,18 +117,20 @@ class RootConfigBuilder:
             yaml_base_key (str, optional): The YAML base key. Defaults to DEFAULT_YAML_BASE_KEY.
         """
         self.package_name: str = package_name
-        self.config_class: type[RootConfig] = config_class
+        generic_args: tuple[Any, ...] = get_args(self.__orig_bases__[0])  # type: ignore
+
+        self.config_class: type[GenericConfig] = config_class if config_class is not None else generic_args[0]
         self.filename: str = filename
         self.yaml_base_key: str | None = yaml_base_key
 
-    def build(self) -> RootConfig:
+    def build(self) -> GenericConfig:
         """Build the configuration.
 
         Returns:
-            RootConfig: The configuration.
+            GenericConfig: The configuration.
         """
         try:
-            config: RootConfig = build_config_from_file_in_package(
+            config: GenericConfig = build_config_from_file_in_package(
                 package_name=self.package_name,
                 config_class=self.config_class,
                 filename=self.filename,
