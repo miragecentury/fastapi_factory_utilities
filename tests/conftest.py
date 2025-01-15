@@ -126,7 +126,7 @@ def mongodb_server_as_container() -> Generator[MongoDbContainer, None, None]:
     mongodb_container.stop(delete_volume=True)
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")  # pyright: ignore
 async def mongodb_async_database_from_container(
     mongodb_server_as_container: MongoDbContainer,  # pylint: disable=redefined-outer-name
 ) -> AsyncGenerator[AsyncIOMotorDatabase[Any], None]:

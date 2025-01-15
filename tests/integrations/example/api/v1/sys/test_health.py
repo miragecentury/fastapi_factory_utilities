@@ -34,5 +34,3 @@ class TestApiV1SysHealth:
                 response: Response = client.get(url="/api/v1/sys/health")
                 assert response.status_code == HTTPStatus.OK.value
                 assert response.json() == {"status": "healthy"}
-                assert response.json() == {"status": "healthy"}
-                assert response.json() == {"status": "healthy"}
