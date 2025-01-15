@@ -4,9 +4,7 @@ from typing import Any, ClassVar, Generic, TypeVar, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from fastapi_factory_utilities.core.app.exceptions import (
-    ApplicationConfigFactoryException,
-)
+from fastapi_factory_utilities.core.app.exceptions import ConfigBuilderError
 from fastapi_factory_utilities.core.utils.configs import (
     UnableToReadConfigFileError,
     ValueErrorConfigError,
@@ -115,6 +113,8 @@ class GenericConfigBuilder(Generic[GenericConfig]):
             config_class (Type[AppConfigAbstract]): The configuration class.
             filename (str, optional): The filename. Defaults to DEFAULT_FILENAME.
             yaml_base_key (str, optional): The YAML base key. Defaults to DEFAULT_YAML_BASE_KEY.
+
+        TODO: prevent the double definition of config_class and through the generic type
         """
         self.package_name: str = package_name
         generic_args: tuple[Any, ...] = get_args(self.__orig_bases__[0])  # type: ignore
@@ -137,10 +137,18 @@ class GenericConfigBuilder(Generic[GenericConfig]):
                 yaml_base_key=self.yaml_base_key,
             )
         except UnableToReadConfigFileError as exception:
-            raise ApplicationConfigFactoryException("Unable to read the application configuration file.") from exception
+            raise ConfigBuilderError(
+                message="Unable to read the application configuration file.",
+                config_class=self.config_class,
+                package=self.package_name,
+                filename=self.filename,
+            ) from exception
         except ValueErrorConfigError as exception:
-            raise ApplicationConfigFactoryException(
-                "Unable to create the application configuration model."
+            raise ConfigBuilderError(
+                message="Value error when creating the configuration object.",
+                config_class=self.config_class,
+                package=self.package_name,
+                filename=self.filename,
             ) from exception
 
         return config
