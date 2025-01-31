@@ -3,8 +3,12 @@
 from typing import ClassVar
 from uuid import UUID
 
+from fastapi import Request
 from opentelemetry import metrics
 
+from fastapi_factory_utilities.core.plugins.odm_plugin.depends import (
+    depends_odm_database,
+)
 from fastapi_factory_utilities.core.plugins.opentelemetry_plugin.helpers import (
     trace_span,
 )
@@ -165,3 +169,8 @@ class BookService:
         self.book_store[book.id] = book
 
         self.METER_COUNTER_BOOK_UPDATE.add(amount=1)
+
+
+def depends_book_service(request: Request) -> BookService:
+    """Provide Book Service."""
+    return BookService(book_repository=BookRepository(database=depends_odm_database(request=request)))
