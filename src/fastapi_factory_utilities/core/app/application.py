@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 from beanie import Document
 from fastapi import FastAPI
+from structlog.stdlib import BoundLogger, get_logger
 
 from fastapi_factory_utilities.core.api import api
 from fastapi_factory_utilities.core.app.config import RootConfig
@@ -15,6 +16,8 @@ from fastapi_factory_utilities.core.app.plugin_manager.plugin_manager import (
     PluginManager,
 )
 from fastapi_factory_utilities.core.plugins import PluginsEnum
+
+_logger: BoundLogger = get_logger(__name__)
 
 
 class ApplicationAbstract(ABC):
@@ -49,20 +52,26 @@ class ApplicationAbstract(ABC):
         self._asgi_app: FastAPI = self.fastapi_builder.build(lifespan=self.fastapi_lifespan)
         # Configure the application
         self.configure()
-        # Add manually added states to the FastAPI app
-        for key, value in self._add_to_state.items():
-            setattr(self._asgi_app, key, value)
+        self._apply_states_to_fastapi_app()
         # Initialize PluginManager
         self.plugin_manager.add_application_context(application=self)
         self.plugin_manager.load()
         # Add the states to the FastAPI app
         self._import_states_from_plugin_manager()
 
+    def _apply_states_to_fastapi_app(self) -> None:
+        # Add manually added states to the FastAPI app
+        for key, value in self._add_to_state.items():
+            if hasattr(self._asgi_app.state, key):
+                _logger.warn(f"Key {key} already exists in the state. Don't set it outside of the application.")
+            setattr(self._asgi_app.state, key, value)
+
     def _import_states_from_plugin_manager(self) -> None:
         """Import the states from the plugins."""
         for state in self.plugin_manager.states:
             self.add_to_state(key=state.key, value=state.value)
         self.plugin_manager.clear_states()
+        self._apply_states_to_fastapi_app()
 
     def add_to_state(self, key: str, value: Any) -> None:
         """Add a value to the FastAPI app state."""
