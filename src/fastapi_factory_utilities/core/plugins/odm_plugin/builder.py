@@ -125,25 +125,30 @@ class ODMBuilder:
         return self
 
     @classmethod
-    def _wait_client_to_be_ready(cls, client: AsyncIOMotorClient[Any], timeout_ms: int) -> None:
+    def _wait_client_to_be_ready(cls, client: AsyncIOMotorClient[Any], timeout_s: int) -> None:
         """Wait for the ODM client to be ready.
 
         Args:
             client (AsyncIOMotorClient): The ODM client.
-            timeout_ms (int): The timeout in milliseconds.
+            timeout_s (int): The timeout in seconds.
 
         Raises:
-            ODMPluginConfigError: If the ODM client is not ready.
+            TimeoutError: If the ODM client is not ready in the given timeout.
         """
         start_time: float = time.time()
-        while (time.time() - start_time) < (timeout_ms * cls.MS_TO_S):
+        message_time: float = time.time()
+        while (time.time() - start_time) < (timeout_s):
             if len(client.nodes) > 0:  # type: ignore
                 _logger.info(f"Waiting {(time.time() - start_time)*cls.MS_TO_S}ms for the ODM client to be ready.")
                 return
-            _logger.info("Waiting for the ODM client to be ready.")
+
+            if (time.time() - message_time) > 1:
+                elaps_time: float = time.time() - start_time
+                _logger.debug(f"Waiting for the ODM client to be ready. (from {int(elaps_time)}s) ")
+                message_time = time.time()
             time.sleep(cls.SLEEP_TIME_S)
 
-        return
+        raise TimeoutError("The ODM client is not ready in the given timeout.")
 
     def build_client(
         self,
@@ -168,11 +173,11 @@ class ODMBuilder:
         self._odm_client = AsyncIOMotorClient(
             host=self._config.uri,
             connect=True,
-            connectTimeoutMS=self._config.connection_timeout_ms,
-            serverSelectionTimeoutMS=self._config.connection_timeout_ms,
+            connectTimeoutMS=self._config.connection_timeout_s,
+            serverSelectionTimeoutMS=self._config.connection_timeout_s,
         )
 
-        self._wait_client_to_be_ready(client=self._odm_client, timeout_ms=self._config.connection_timeout_ms)
+        self._wait_client_to_be_ready(client=self._odm_client, timeout_s=self._config.connection_timeout_s)
 
         return self
 
