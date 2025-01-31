@@ -128,6 +128,9 @@ class GenericConfigBuilder(Generic[GenericConfig]):
 
         Returns:
             GenericConfig: The configuration.
+
+        Raises:
+            ApplicationConfigFactoryException: Any error occurred
         """
         try:
             config: GenericConfig = build_config_from_file_in_package(
@@ -149,6 +152,10 @@ class GenericConfigBuilder(Generic[GenericConfig]):
                 config_class=self.config_class,
                 package=self.package_name,
                 filename=self.filename,
+            ) from exception
+        except Exception as exception:
+            raise ApplicationConfigFactoryException(
+                "An error occurred while building the application configuration."
             ) from exception
 
         return config
