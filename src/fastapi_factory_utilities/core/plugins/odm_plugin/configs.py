@@ -2,8 +2,6 @@
 
 from pydantic import BaseModel, ConfigDict
 
-S_TO_MS = 1000
-
 
 class ODMConfig(BaseModel):
     """Provides the configuration model for the ODM plugin."""
@@ -14,4 +12,4 @@ class ODMConfig(BaseModel):
 
     database: str = "test"
 
-    connection_timeout_ms: int = 10 * S_TO_MS
+    connection_timeout_s: int = 10

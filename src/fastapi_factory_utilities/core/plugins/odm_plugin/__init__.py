@@ -55,27 +55,47 @@ async def on_startup(
     Returns:
         None
     """
+    states: list[PluginState] = []
+
     try:
         odm_factory: ODMBuilder = ODMBuilder(application=application).build_all()
     except Exception as exception:  # pylint: disable=broad-except
         _logger.error(f"ODM plugin failed to start. {exception}")
-        return
+        # TODO: Report the error to the status_service
+        # this will report the application as unhealthy
+        return states
 
     if odm_factory.odm_database is None or odm_factory.odm_client is None:
         _logger.error(
             f"ODM plugin failed to start. Database: {odm_factory.odm_database} - " f"Client: {odm_factory.odm_client}"
         )
-        return
-    # TODO: Find a way to add type to the state
-    application.get_asgi_app().state.odm_client = odm_factory.odm_client
-    application.get_asgi_app().state.odm_database = odm_factory.odm_database
-    _logger.info("ODM plugin states added to the FastAPI app.")
-    # TODO: Find a better way to initialize beanie with the document models of the concrete application
-    # through an hook in the application ?
-    await init_beanie(
-        database=odm_factory.odm_database,
-        document_models=application.ODM_DOCUMENT_MODELS,
+        # TODO: Report the error to the status_service
+        # this will report the application as unhealthy
+        return states
+
+    # Add the ODM client and database to the application state
+    states.append(
+        PluginState(key="odm_client", value=odm_factory.odm_client),
     )
+    states.append(
+        PluginState(
+            key="odm_database",
+            value=odm_factory.odm_database,
+        ),
+    )
+
+    # TODO: Find a better way to initialize beanie with the document models of the concrete application
+    # through an hook in the application, a dynamis import ?
+    try:
+        await init_beanie(
+            database=odm_factory.odm_database,
+            document_models=application.ODM_DOCUMENT_MODELS,
+        )
+    except Exception as exception:  # pylint: disable=broad-except
+        _logger.error(f"ODM plugin failed to start. {exception}")
+        # TODO: Report the error to the status_service
+        # this will report the application as unhealthy
+        return states
 
     _logger.info(
         f"ODM plugin started. Database: {odm_factory.odm_database.name} - "
@@ -83,13 +103,7 @@ async def on_startup(
         f"Document models: {application.ODM_DOCUMENT_MODELS}"
     )
 
-    return [
-        PluginState(key="odm_client", value=odm_factory.odm_client),
-        PluginState(
-            key="odm_database",
-            value=odm_factory.odm_database,
-        ),
-    ]
+    return states
 
 
 async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
@@ -101,6 +115,10 @@ async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
     Returns:
         None
     """
+    # Skip if the ODM plugin was not started correctly
+    if not hasattr(application.get_asgi_app().state, "odm_client"):
+        return
+
     client: AsyncIOMotorClient[Any] = application.get_asgi_app().state.odm_client
     client.close()
     _logger.debug("ODM plugin shutdown.")
