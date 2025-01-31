@@ -154,8 +154,11 @@ class GenericConfigBuilder(Generic[GenericConfig]):
                 filename=self.filename,
             ) from exception
         except Exception as exception:
-            raise ApplicationConfigFactoryException(
-                "An error occurred while building the application configuration."
+            raise ConfigBuilderError(
+                message="An error occurred while building the application configuration.",
+                config_class=self.config_class,
+                package=self.package_name,
+                filename=self.filename,
             ) from exception
 
         return config

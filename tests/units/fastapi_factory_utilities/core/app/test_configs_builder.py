@@ -4,10 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from fastapi_factory_utilities.core.app.config import RootConfig, RootConfigBuilder
-from fastapi_factory_utilities.core.app.exceptions import (
-    ApplicationConfigFactoryException,
-)
+from fastapi_factory_utilities.core.app.config import GenericConfigBuilder, RootConfig
+from fastapi_factory_utilities.core.app.exceptions import ConfigBuilderError
 from fastapi_factory_utilities.core.utils.configs import (
     UnableToReadConfigFileError,
     ValueErrorConfigError,
@@ -20,11 +18,9 @@ class TestRootConfigBuilder:
     @pytest.mark.parametrize(
         "exception_raise,expected_exception",
         [
-            pytest.param(Exception, ApplicationConfigFactoryException, id="Exception"),
-            pytest.param(
-                UnableToReadConfigFileError, ApplicationConfigFactoryException, id="UnableToReadConfigFileError"
-            ),
-            pytest.param(ValueErrorConfigError, ApplicationConfigFactoryException, id="ValueErrorConfigError"),
+            pytest.param(Exception, ConfigBuilderError, id="Exception"),
+            pytest.param(UnableToReadConfigFileError, ConfigBuilderError, id="UnableToReadConfigFileError"),
+            pytest.param(ValueErrorConfigError, ConfigBuilderError, id="ValueErrorConfigError"),
         ],
     )
     def test_root_config_exception_handling(
@@ -36,7 +32,7 @@ class TestRootConfigBuilder:
         ) as mock_build_config_from_file_in_package:
             mock_build_config_from_file_in_package.side_effect = exception_raise
             with pytest.raises(expected_exception):
-                RootConfigBuilder(
+                GenericConfigBuilder(
                     package_name="tests",
                     config_class=RootConfig,
                     filename="application.yaml",
