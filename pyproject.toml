@@ -39,6 +39,7 @@ beanie = "^1.27.0"
 opentelemetry-instrumentation-pymongo = "^0.49b2"
 pymongo = "~4.9.2" # version fixed to fix integration between beanie and pytest-mongo
 pyaml = "^25.1.0"
+reactivex = "^4.0.4"
 
 [tool.poetry.group.test]
 optional = true
@@ -80,9 +81,8 @@ build-backend = "poetry.core.masonry.api"
 testpaths = "tests"
 addopts = "--import-mode=importlib -n auto --color=yes"
 filterwarnings = [
-    "ignore:.*Type google._upb._message.MessageMapContainer:DeprecationWarning",
-    "ignore:.*Type google._upb._message.ScalarMapContainer:DeprecationWarning",
-    "ignore:.*pkg_resources is deprecated as an API.:DeprecationWarning",
+    "ignore:.*datetime.datetime.utcfromtimestamp().*:DeprecationWarning", # reactivex
+    "ignore:.*datetime.datetime.utcnow().*:DeprecationWarning", # reactivex
 ]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"

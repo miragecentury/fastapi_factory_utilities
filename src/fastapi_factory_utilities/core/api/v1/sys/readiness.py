@@ -3,20 +3,18 @@
 Provide the Get readiness endpoint
 """
 
-from enum import StrEnum
 from http import HTTPStatus
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
 
+from fastapi_factory_utilities.core.services.status.enums import ReadinessStatusEnum
+from fastapi_factory_utilities.core.services.status.services import (
+    StatusService,
+    depends_status_service,
+)
+
 api_v1_sys_readiness = APIRouter(prefix="/readiness")
-
-
-class ReadinessStatusEnum(StrEnum):
-    """Readiness status enum."""
-
-    READY = "ready"
-    NOT_READY = "not_ready"
 
 
 class ReadinessResponseModel(BaseModel):
@@ -40,14 +38,23 @@ class ReadinessResponseModel(BaseModel):
         },
     },
 )
-def get_api_v1_sys_readiness(response: Response) -> ReadinessResponseModel:
+def get_api_v1_sys_readiness(
+    response: Response, status_service: StatusService = Depends(depends_status_service)
+) -> ReadinessResponseModel:
     """Get the readiness of the system.
 
     Args:
         response (Response): The response object.
+        status_service (StatusService): The status service
 
     Returns:
         ReadinessResponse: The readiness status.
     """
-    response.status_code = HTTPStatus.OK
-    return ReadinessResponseModel(status=ReadinessStatusEnum.READY)
+    status: ReadinessStatusEnum = status_service.get_status()["readiness"]
+
+    match status:
+        case ReadinessStatusEnum.READY:
+            response.status_code = HTTPStatus.OK.value
+        case ReadinessStatusEnum.NOT_READY:
+            response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR.value
+    return ReadinessResponseModel(status=status)

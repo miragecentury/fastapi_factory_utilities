@@ -5,10 +5,21 @@ from typing import Any
 
 from beanie import init_beanie  # pyright: ignore[reportUnknownVariableType]
 from motor.motor_asyncio import AsyncIOMotorClient
+from reactivex import Subject
 from structlog.stdlib import BoundLogger, get_logger
 
 from fastapi_factory_utilities.core.plugins import PluginState
 from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
+from fastapi_factory_utilities.core.services.status.enums import (
+    ComponentTypeEnum,
+    HealthStatusEnum,
+    ReadinessStatusEnum,
+)
+from fastapi_factory_utilities.core.services.status.services import StatusService
+from fastapi_factory_utilities.core.services.status.types import (
+    ComponentInstanceType,
+    Status,
+)
 
 from .builder import ODMBuilder
 
@@ -57,12 +68,23 @@ async def on_startup(
     """
     states: list[PluginState] = []
 
+    status_service: StatusService = application.get_status_service()
+    component_instance: ComponentInstanceType = ComponentInstanceType(
+        component_type=ComponentTypeEnum.DATABASE, identifier="MongoDB"
+    )
+    monitoring_subject: Subject[Status] = status_service.register_component_instance(
+        component_instance=component_instance
+    )
+
     try:
         odm_factory: ODMBuilder = ODMBuilder(application=application).build_all()
     except Exception as exception:  # pylint: disable=broad-except
         _logger.error(f"ODM plugin failed to start. {exception}")
         # TODO: Report the error to the status_service
         # this will report the application as unhealthy
+        monitoring_subject.on_next(
+            value=Status(health=HealthStatusEnum.UNHEALTHY, readiness=ReadinessStatusEnum.NOT_READY)
+        )
         return states
 
     if odm_factory.odm_database is None or odm_factory.odm_client is None:
@@ -71,6 +93,9 @@ async def on_startup(
         )
         # TODO: Report the error to the status_service
         # this will report the application as unhealthy
+        monitoring_subject.on_next(
+            value=Status(health=HealthStatusEnum.UNHEALTHY, readiness=ReadinessStatusEnum.NOT_READY)
+        )
         return states
 
     # Add the ODM client and database to the application state
@@ -95,6 +120,9 @@ async def on_startup(
         _logger.error(f"ODM plugin failed to start. {exception}")
         # TODO: Report the error to the status_service
         # this will report the application as unhealthy
+        monitoring_subject.on_next(
+            value=Status(health=HealthStatusEnum.UNHEALTHY, readiness=ReadinessStatusEnum.NOT_READY)
+        )
         return states
 
     _logger.info(
@@ -102,6 +130,8 @@ async def on_startup(
         f"Client: {odm_factory.odm_client.address} - "
         f"Document models: {application.ODM_DOCUMENT_MODELS}"
     )
+
+    monitoring_subject.on_next(value=Status(health=HealthStatusEnum.HEALTHY, readiness=ReadinessStatusEnum.READY))
 
     return states
 

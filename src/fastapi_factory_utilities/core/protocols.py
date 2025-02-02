@@ -7,6 +7,7 @@ from beanie import Document
 from fastapi import FastAPI
 
 from fastapi_factory_utilities.core.plugins import PluginsEnum
+from fastapi_factory_utilities.core.services.status.services import StatusService
 
 if TYPE_CHECKING:
     from fastapi_factory_utilities.core.app.config import RootConfig
@@ -29,6 +30,10 @@ class ApplicationAbstractProtocol(Protocol):
     @abstractmethod
     def get_asgi_app(self) -> FastAPI:
         """Get the ASGI application."""
+
+    @abstractmethod
+    def get_status_service(self) -> StatusService:
+        """Get the status service."""
 
 
 @runtime_checkable
