@@ -16,6 +16,7 @@ from fastapi_factory_utilities.core.app.plugin_manager.plugin_manager import (
     PluginManager,
 )
 from fastapi_factory_utilities.core.plugins import PluginsEnum
+from fastapi_factory_utilities.core.services.status.services import StatusService
 
 _logger: BoundLogger = get_logger(__name__)
 
@@ -50,6 +51,10 @@ class ApplicationAbstract(ABC):
         """Initialize the application."""
         # Initialize FastAPI application
         self._asgi_app: FastAPI = self.fastapi_builder.build(lifespan=self.fastapi_lifespan)
+        # Status service
+        self.status_service: StatusService = StatusService()
+        self.add_to_state(key="status_service", value=self.status_service)
+        self._apply_states_to_fastapi_app()
         # Configure the application
         self.configure()
         self._apply_states_to_fastapi_app()
@@ -65,6 +70,7 @@ class ApplicationAbstract(ABC):
             if hasattr(self._asgi_app.state, key):
                 _logger.warn(f"Key {key} already exists in the state. Don't set it outside of the application.")
             setattr(self._asgi_app.state, key, value)
+        self._add_to_state.clear()
 
     def _import_states_from_plugin_manager(self) -> None:
         """Import the states from the plugins."""
@@ -117,6 +123,10 @@ class ApplicationAbstract(ABC):
     def get_plugin_manager(self) -> PluginManager:
         """Get the plugin manager."""
         return self.plugin_manager
+
+    def get_status_service(self) -> StatusService:
+        """Get the status service."""
+        return self.status_service
 
     async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
         """Forward the call to the FastAPI app."""
