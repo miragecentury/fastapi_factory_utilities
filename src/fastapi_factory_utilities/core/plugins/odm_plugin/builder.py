@@ -1,13 +1,12 @@
 """Provides the module for the ODM plugin."""
 
-import asyncio
 import time
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from structlog.stdlib import get_logger
 
-from fastapi_factory_utilities.core.protocols import BaseApplicationProtocol
+from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
 from fastapi_factory_utilities.core.utils.importlib import get_path_file_in_package
 from fastapi_factory_utilities.core.utils.yaml_reader import (
     UnableToReadYamlFileError,
@@ -38,9 +37,12 @@ class ODMBuilder:
 
     """
 
+    MS_TO_S: ClassVar[int] = 1000
+    SLEEP_TIME_S: ClassVar[float] = 0.001
+
     def __init__(
         self,
-        application: BaseApplicationProtocol,
+        application: ApplicationAbstractProtocol,
         odm_config: ODMConfig | None = None,
         odm_client: AsyncIOMotorClient[Any] | None = None,
         odm_database: AsyncIOMotorDatabase[Any] | None = None,
@@ -54,7 +56,7 @@ class ODMBuilder:
             odm_database (AsyncIOMotorDatabase): The ODM database for injection. (Default is None)
 
         """
-        self._application: BaseApplicationProtocol = application
+        self._application: ApplicationAbstractProtocol = application
         self._config: ODMConfig | None = odm_config
         self._odm_client: AsyncIOMotorClient[Any] | None = odm_client
         self._odm_database: AsyncIOMotorDatabase[Any] | None = odm_database
@@ -123,40 +125,30 @@ class ODMBuilder:
         return self
 
     @classmethod
-    def _wait_client_to_be_ready(cls, client: AsyncIOMotorClient[Any], timeout_ms: int) -> None:
+    def _wait_client_to_be_ready(cls, client: AsyncIOMotorClient[Any], timeout_s: int) -> None:
         """Wait for the ODM client to be ready.
 
         Args:
             client (AsyncIOMotorClient): The ODM client.
-            timeout_ms (int): The timeout in milliseconds.
+            timeout_s (int): The timeout in seconds.
 
         Raises:
-            ODMPluginConfigError: If the ODM client is not ready.
+            TimeoutError: If the ODM client is not ready in the given timeout.
         """
-        start_timer = time.monotonic()
+        start_time: float = time.time()
+        message_time: float = time.time()
+        while (time.time() - start_time) < (timeout_s):
+            if len(client.nodes) > 0:  # type: ignore
+                _logger.info(f"Waiting {(time.time() - start_time)*cls.MS_TO_S}ms for the ODM client to be ready.")
+                return
 
-        async def is_connected(client: AsyncIOMotorClient[Any]) -> bool:
-            """Check if the client is connected."""
-            try:
-                await client.admin.command(
-                    command="ping",
-                )  # pyright: ignore
-                return True
-            except Exception:  # pylint: disable=broad-except
-                _logger.debug("ODM client is not ready.")
-                return False
+            if (time.time() - message_time) > 1:
+                elaps_time: float = time.time() - start_time
+                _logger.debug(f"Waiting for the ODM client to be ready. (from {int(elaps_time)}s) ")
+                message_time = time.time()
+            time.sleep(cls.SLEEP_TIME_S)
 
-        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-
-        while not loop.run_in_executor(None, asyncio.Task(is_connected(client))) and (  # type: ignore
-            (time.monotonic() - start_timer) < timeout_ms
-        ):
-            if time.monotonic() - start_timer > timeout_ms:
-                raise ODMPluginConfigError("ODM client is not ready.")
-            time.sleep(0.01)
-
-        if not loop.run_in_executor(None, asyncio.Task(is_connected(client))):  # type: ignore
-            raise ODMPluginConfigError("ODM client is not ready.")
+        raise TimeoutError("The ODM client is not ready in the given timeout.")
 
     def build_client(
         self,
@@ -181,11 +173,11 @@ class ODMBuilder:
         self._odm_client = AsyncIOMotorClient(
             host=self._config.uri,
             connect=True,
-            connectTimeoutMS=self._config.connection_timeout_ms,
-            serverSelectionTimeoutMS=self._config.connection_timeout_ms,
+            connectTimeoutMS=self._config.connection_timeout_s,
+            serverSelectionTimeoutMS=self._config.connection_timeout_s,
         )
 
-        self._wait_client_to_be_ready(client=self._odm_client, timeout_ms=self._config.connection_timeout_ms)
+        self._wait_client_to_be_ready(client=self._odm_client, timeout_s=self._config.connection_timeout_s)
 
         return self
 
