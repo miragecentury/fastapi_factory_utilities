@@ -1,18 +1,14 @@
 ---
 application:
-  service_name: fastapi_factory_utilities_example
-  service_namespace: fastapi_factory_utilities_example
-  title: Python Factory Example
-  description: An example application for Python Factory
+  service_name: Example Application
+  service_namespace: fastapi_factory_utilities
+  description: An example application using fastapi-factory-utilities
   version: 0.1.0
   environment: ${ENVIRONMENT:development}
+
+development:
   debug: ${APPLICATION_DEBUG:false}
   reload: ${APPLICATION_RELOAD:false}
-
-plugins:
-  activate:
-    - opentelemetry_plugin
-    - odm_plugin
 
 opentelemetry:
   activate: "${OTEL_ACTIVE:false}"

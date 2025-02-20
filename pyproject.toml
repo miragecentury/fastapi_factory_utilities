@@ -3,7 +3,7 @@ name = "fastapi_factory_utilities"
 homepage = "https://github.com/miragecentury/fastapi_factory_utilities"
 repository = "https://github.com/miragecentury/fastapi_factory_utilities"
 keywords = ["python", "fastapi", "beanie", "httpx", "opentelemetry", "microservices"]
-version = "0.1.0"
+version = "0.2.0"
 description = "Consolidate libraries and utilities to create microservices in Python with FastAPI, Beanie, Httpx, AioPika and OpenTelemetry."
 authors = ["miragecentury <victorien.vanroye@gmail.com>"]
 maintainers = ["miragecentury <victorien.vanroye@gmail.com>"]
@@ -25,7 +25,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "~3.12"
-structlog = "^24.1.0"
+structlog = ">=24.1,<26.0"
 typer = "^0.15.1"
 pydantic = "^2.8.2"
 fastapi = "^0.115.4"
@@ -38,6 +38,8 @@ opentelemetry-propagator-b3 = "^1.26.0"
 beanie = "^1.27.0"
 opentelemetry-instrumentation-pymongo = "^0.49b2"
 pymongo = "~4.9.2" # version fixed to fix integration between beanie and pytest-mongo
+pyaml = "^25.1.0"
+reactivex = "^4.0.4"
 
 [tool.poetry.group.test]
 optional = true
@@ -76,14 +78,14 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "tests/units tests/integrations -n auto --color=yes --import-mode=importlib"
+testpaths = "tests"
+addopts = "--import-mode=importlib -n auto --color=yes"
 filterwarnings = [
-    "ignore:.*Type google._upb._message.MessageMapContainer:DeprecationWarning",
-    "ignore:.*Type google._upb._message.ScalarMapContainer:DeprecationWarning",
-    "ignore:.*pkg_resources is deprecated as an API.:DeprecationWarning",
+    "ignore:.*datetime.datetime.utcfromtimestamp().*:DeprecationWarning", # reactivex
+    "ignore:.*datetime.datetime.utcnow().*:DeprecationWarning", # reactivex
 ]
 asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "session"
+asyncio_default_fixture_loop_scope = "function"
 mongo_params = ""
 
 [tool.black]

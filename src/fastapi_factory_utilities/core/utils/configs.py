@@ -41,7 +41,7 @@ def build_config_from_file_in_package(
     package_name: str,
     filename: str,
     config_class: type[GenericConfigBaseModelType],
-    yaml_base_key: str,
+    yaml_base_key: str | None = None,
 ) -> GenericConfigBaseModelType:
     """Build a configuration object from a file in a package.
 
