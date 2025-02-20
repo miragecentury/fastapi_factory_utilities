@@ -5,16 +5,28 @@ from typing import Any
 
 from beanie import init_beanie  # pyright: ignore[reportUnknownVariableType]
 from motor.motor_asyncio import AsyncIOMotorClient
+from reactivex import Subject
 from structlog.stdlib import BoundLogger, get_logger
 
-from fastapi_factory_utilities.core.protocols import BaseApplicationProtocol
+from fastapi_factory_utilities.core.plugins import PluginState
+from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
+from fastapi_factory_utilities.core.services.status.enums import (
+    ComponentTypeEnum,
+    HealthStatusEnum,
+    ReadinessStatusEnum,
+)
+from fastapi_factory_utilities.core.services.status.services import StatusService
+from fastapi_factory_utilities.core.services.status.types import (
+    ComponentInstanceType,
+    Status,
+)
 
 from .builder import ODMBuilder
 
 _logger: BoundLogger = get_logger()
 
 
-def pre_conditions_check(application: BaseApplicationProtocol) -> bool:
+def pre_conditions_check(application: ApplicationAbstractProtocol) -> bool:
     """Check the pre-conditions for the OpenTelemetry plugin.
 
     Args:
@@ -28,8 +40,8 @@ def pre_conditions_check(application: BaseApplicationProtocol) -> bool:
 
 
 def on_load(
-    application: BaseApplicationProtocol,
-) -> None:
+    application: ApplicationAbstractProtocol,
+) -> list["PluginState"] | None:
     """Actions to perform on load for the OpenTelemetry plugin.
 
     Args:
@@ -43,8 +55,8 @@ def on_load(
 
 
 async def on_startup(
-    application: BaseApplicationProtocol,
-) -> None:
+    application: ApplicationAbstractProtocol,
+) -> list["PluginState"] | None:
     """Actions to perform on startup for the ODM plugin.
 
     Args:
@@ -54,27 +66,64 @@ async def on_startup(
     Returns:
         None
     """
+    states: list[PluginState] = []
+
+    status_service: StatusService = application.get_status_service()
+    component_instance: ComponentInstanceType = ComponentInstanceType(
+        component_type=ComponentTypeEnum.DATABASE, identifier="MongoDB"
+    )
+    monitoring_subject: Subject[Status] = status_service.register_component_instance(
+        component_instance=component_instance
+    )
+
     try:
         odm_factory: ODMBuilder = ODMBuilder(application=application).build_all()
     except Exception as exception:  # pylint: disable=broad-except
         _logger.error(f"ODM plugin failed to start. {exception}")
-        return
+        # TODO: Report the error to the status_service
+        # this will report the application as unhealthy
+        monitoring_subject.on_next(
+            value=Status(health=HealthStatusEnum.UNHEALTHY, readiness=ReadinessStatusEnum.NOT_READY)
+        )
+        return states
 
     if odm_factory.odm_database is None or odm_factory.odm_client is None:
         _logger.error(
             f"ODM plugin failed to start. Database: {odm_factory.odm_database} - " f"Client: {odm_factory.odm_client}"
         )
-        return
-    # TODO: Find a way to add type to the state
-    application.get_asgi_app().state.odm_client = odm_factory.odm_client
-    application.get_asgi_app().state.odm_database = odm_factory.odm_database
+        # TODO: Report the error to the status_service
+        # this will report the application as unhealthy
+        monitoring_subject.on_next(
+            value=Status(health=HealthStatusEnum.UNHEALTHY, readiness=ReadinessStatusEnum.NOT_READY)
+        )
+        return states
+
+    # Add the ODM client and database to the application state
+    states.append(
+        PluginState(key="odm_client", value=odm_factory.odm_client),
+    )
+    states.append(
+        PluginState(
+            key="odm_database",
+            value=odm_factory.odm_database,
+        ),
+    )
 
     # TODO: Find a better way to initialize beanie with the document models of the concrete application
-    # through an hook in the application ?
-    await init_beanie(
-        database=odm_factory.odm_database,
-        document_models=application.ODM_DOCUMENT_MODELS,
-    )
+    # through an hook in the application, a dynamis import ?
+    try:
+        await init_beanie(
+            database=odm_factory.odm_database,
+            document_models=application.ODM_DOCUMENT_MODELS,
+        )
+    except Exception as exception:  # pylint: disable=broad-except
+        _logger.error(f"ODM plugin failed to start. {exception}")
+        # TODO: Report the error to the status_service
+        # this will report the application as unhealthy
+        monitoring_subject.on_next(
+            value=Status(health=HealthStatusEnum.UNHEALTHY, readiness=ReadinessStatusEnum.NOT_READY)
+        )
+        return states
 
     _logger.info(
         f"ODM plugin started. Database: {odm_factory.odm_database.name} - "
@@ -82,8 +131,12 @@ async def on_startup(
         f"Document models: {application.ODM_DOCUMENT_MODELS}"
     )
 
+    monitoring_subject.on_next(value=Status(health=HealthStatusEnum.HEALTHY, readiness=ReadinessStatusEnum.READY))
 
-async def on_shutdown(application: BaseApplicationProtocol) -> None:
+    return states
+
+
+async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
     """Actions to perform on shutdown for the ODM plugin.
 
     Args:
@@ -92,6 +145,10 @@ async def on_shutdown(application: BaseApplicationProtocol) -> None:
     Returns:
         None
     """
+    # Skip if the ODM plugin was not started correctly
+    if not hasattr(application.get_asgi_app().state, "odm_client"):
+        return
+
     client: AsyncIOMotorClient[Any] = application.get_asgi_app().state.odm_client
     client.close()
     _logger.debug("ODM plugin shutdown.")

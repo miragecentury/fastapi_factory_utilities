@@ -11,7 +11,7 @@ from httpx import Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from structlog.stdlib import get_logger
 
-from fastapi_factory_utilities.example import App
+from fastapi_factory_utilities.example import AppBuilder
 
 _logger = get_logger(__package__)
 
@@ -19,7 +19,7 @@ _logger = get_logger(__package__)
 class TestApiV1SysHealth:
     """Test the health endpoint."""
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_get_api_v1_sys_health(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test the get_api_v1_sys_health function."""
         with patch.dict(
@@ -30,9 +30,7 @@ class TestApiV1SysHealth:
                 ],
             },
         ):
-            with TestClient(app=App.build()) as client:
+            with TestClient(app=AppBuilder().build()) as client:
                 response: Response = client.get(url="/api/v1/sys/health")
                 assert response.status_code == HTTPStatus.OK.value
-                assert response.json() == {"status": "healthy"}
-                assert response.json() == {"status": "healthy"}
                 assert response.json() == {"status": "healthy"}

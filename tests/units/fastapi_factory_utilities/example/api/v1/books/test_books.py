@@ -5,12 +5,11 @@ from unittest.mock import MagicMock
 
 from fastapi.testclient import TestClient
 
-from fastapi_factory_utilities.core.app.base.plugins_manager_abstract import (
-    PluginsActivationList,
+from fastapi_factory_utilities.example.app import App, AppBuilder
+from fastapi_factory_utilities.example.services.books.services import (
+    BookService,
+    depends_book_service,
 )
-from fastapi_factory_utilities.example.api.books.routes import get_book_service
-from fastapi_factory_utilities.example.app.app import App
-from fastapi_factory_utilities.example.services.books.services import BookService
 
 
 class TestBookApi:
@@ -18,9 +17,9 @@ class TestBookApi:
 
     def test_get_books(self) -> None:
         """Test get_books."""
-        application: App = App.build(plugin_activation_list=PluginsActivationList(activate=[]))
+        application: App = AppBuilder(plugins_activation_list=[]).build()
 
-        application.get_asgi_app().dependency_overrides[get_book_service] = lambda: MagicMock(
+        application.get_asgi_app().dependency_overrides[depends_book_service] = lambda: MagicMock(
             spec=BookService, return_value=[]
         )
 

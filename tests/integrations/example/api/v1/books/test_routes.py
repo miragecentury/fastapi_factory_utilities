@@ -11,7 +11,7 @@ from httpx import Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from structlog.stdlib import get_logger
 
-from fastapi_factory_utilities.example.app.app import App
+from fastapi_factory_utilities.example.app import AppBuilder
 
 _logger = get_logger(__package__)
 
@@ -19,7 +19,7 @@ _logger = get_logger(__package__)
 class TestBooksRoutes:
     """Tests for the routes of the books API."""
 
-    @pytest.mark.asyncio(loop_scope="session")
+    @pytest.mark.asyncio()
     async def test_get_books(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
         """Test get_books."""
         with patch.dict(
@@ -30,8 +30,8 @@ class TestBooksRoutes:
                 ],
             },
         ):
-            _logger.debug(f"MONGO_URI={os.getenv('MONGO_URI')}")
+            _logger.debug(f"MONGO_URI={os.getenv("MONGO_URI")}")
 
-            with TestClient(App.build()) as client:
+            with TestClient(app=AppBuilder().build()) as client:
                 response: Response = client.get("/api/v1/books")
                 assert response.status_code == HTTPStatus.OK
