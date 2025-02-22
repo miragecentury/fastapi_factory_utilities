@@ -21,6 +21,7 @@ class ApplicationGenericBuilder(Generic[T]):
 
     def __init__(self, plugins_activation_list: list[PluginsEnum] | None = None) -> None:
         """Instanciate the ApplicationGenericBuilder."""
+        self._uvicorn_utils: UvicornUtils | None = None
         self._root_config: RootConfig | None = None
         self._plugin_manager: PluginManager | None = None
         self._fastapi_builder: FastAPIBuilder | None = None
@@ -109,11 +110,12 @@ class ApplicationGenericBuilder(Generic[T]):
 
     def build_as_uvicorn_utils(self) -> UvicornUtils:
         """Build the application and provide UvicornUtils."""
-        return UvicornUtils(app=self.build())
+        self._uvicorn_utils = UvicornUtils(app=self.build())
+        return self._uvicorn_utils
 
     def build_and_serve(self) -> None:
         """Build the application and serve it with Uvicorn."""
-        uvicorn_utils: UvicornUtils = self.build_as_uvicorn_utils()
+        uvicorn_utils: UvicornUtils = self._uvicorn_utils or self.build_as_uvicorn_utils()
 
         setup_log(mode=LogModeEnum.CONSOLE)
 
