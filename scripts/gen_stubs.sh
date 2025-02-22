@@ -24,7 +24,7 @@ function generate_stubs_for_dir(){
             fi
             if [ -d "$dir/$file" ]; then
                 echo "Generating stubs for dir: $file"
-                generate_stubs_for_dir "$dir/$file" "$output_dir/$file"
+                generate_stubs_for_dir "$dir/$file" "$output_dir"
             fi
             if [ -f "$dir/$file" ]; then
                 if [[ $file != *.py ]]; then
