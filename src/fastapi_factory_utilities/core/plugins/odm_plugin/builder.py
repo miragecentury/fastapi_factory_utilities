@@ -4,6 +4,7 @@ import time
 from typing import Any, ClassVar, Self
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo.server_api import ServerApi, ServerApiVersion
 from structlog.stdlib import get_logger
 
 from fastapi_factory_utilities.core.protocols import ApplicationAbstractProtocol
@@ -124,31 +125,34 @@ class ODMBuilder:
             raise ODMPluginConfigError("Unable to create the application configuration model.") from exception
         return self
 
-    @classmethod
-    def _wait_client_to_be_ready(cls, client: AsyncIOMotorClient[Any], timeout_s: int) -> None:
-        """Wait for the ODM client to be ready.
+    # ======
+    # KEEP IT, Waiting for additional tests
+    # @classmethod
+    # def _wait_client_to_be_ready(cls, client: AsyncIOMotorClient[Any], timeout_s: int) -> None:
+    #     """Wait for the ODM client to be ready.
 
-        Args:
-            client (AsyncIOMotorClient): The ODM client.
-            timeout_s (int): The timeout in seconds.
+    #     Args:
+    #         client (AsyncIOMotorClient): The ODM client.
+    #         timeout_s (int): The timeout in seconds.
 
-        Raises:
-            TimeoutError: If the ODM client is not ready in the given timeout.
-        """
-        start_time: float = time.time()
-        message_time: float = time.time()
-        while (time.time() - start_time) < (timeout_s):
-            if len(client.nodes) > 0:  # type: ignore
-                _logger.info(f"Waiting {(time.time() - start_time)*cls.MS_TO_S}ms for the ODM client to be ready.")
-                return
+    #     Raises:
+    #         TimeoutError: If the ODM client is not ready in the given timeout.
+    #     """
+    #     start_time: float = time.time()
+    #     message_time: float = time.time()
+    #     while (time.time() - start_time) < (timeout_s):
+    #         if len(client.nodes) > 0:  # type: ignore
+    #             _logger.info(f"Waiting {(time.time() - start_time)*cls.MS_TO_S}ms for the ODM client to be ready.")
+    #             return
 
-            if (time.time() - message_time) > 1:
-                elaps_time: float = time.time() - start_time
-                _logger.debug(f"Waiting for the ODM client to be ready. (from {int(elaps_time)}s) ")
-                message_time = time.time()
-            time.sleep(cls.SLEEP_TIME_S)
+    #         if (time.time() - message_time) > 1:
+    #             elaps_time: float = time.time() - start_time
+    #             _logger.debug(f"Waiting for the ODM client to be ready. (from {int(elaps_time)}s) ")
+    #             message_time = time.time()
+    #         time.sleep(cls.SLEEP_TIME_S)
 
-        raise TimeoutError("The ODM client is not ready in the given timeout.")
+    #     raise TimeoutError("The ODM client is not ready in the given timeout.")
+    # ======
 
     def build_client(
         self,
@@ -173,11 +177,13 @@ class ODMBuilder:
         self._odm_client = AsyncIOMotorClient(
             host=self._config.uri,
             connect=True,
-            connectTimeoutMS=self._config.connection_timeout_s,
-            serverSelectionTimeoutMS=self._config.connection_timeout_s,
+            connectTimeoutMS=self._config.connection_timeout_ms,
+            serverSelectionTimeoutMS=self._config.connection_timeout_ms,
+            server_api=ServerApi(version=ServerApiVersion.V1),
         )
 
-        self._wait_client_to_be_ready(client=self._odm_client, timeout_s=self._config.connection_timeout_s)
+        # KEEP IT, Waiting for additional tests
+        # self._wait_client_to_be_ready(client=self._odm_client, timeout_s=self._config.connection_timeout_s)
 
         return self
 
@@ -229,3 +235,19 @@ class ODMBuilder:
         self.build_database()
 
         return self
+
+    async def wait_ping(self):
+        """Wait for the ODM client to be ready.
+
+        Returns:
+            Self: The ODM factory.
+        """
+        if self._odm_client is None:
+            raise ODMPluginConfigError(
+                "ODM client is not set. Provide the ODM client using " "build_client method or through parameter."
+            )
+
+        try:
+            await self._odm_client.admin.command("ping")
+        except Exception as exception:  # pylint: disable=broad-except
+            raise ODMPluginConfigError("Unable to ping the ODM client.") from exception
