@@ -78,6 +78,7 @@ async def on_startup(
 
     try:
         odm_factory: ODMBuilder = ODMBuilder(application=application).build_all()
+        await odm_factory.wait_ping()
     except Exception as exception:  # pylint: disable=broad-except
         _logger.error(f"ODM plugin failed to start. {exception}")
         # TODO: Report the error to the status_service

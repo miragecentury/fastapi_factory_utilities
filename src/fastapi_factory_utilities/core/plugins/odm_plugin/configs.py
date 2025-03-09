@@ -12,4 +12,4 @@ class ODMConfig(BaseModel):
 
     database: str = "test"
 
-    connection_timeout_s: int = 10
+    connection_timeout_ms: int = 1000
