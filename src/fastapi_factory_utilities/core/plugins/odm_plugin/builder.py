@@ -1,6 +1,5 @@
 """Provides the module for the ODM plugin."""
 
-import time
 from typing import Any, ClassVar, Self
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
