@@ -1,10 +1,12 @@
 """Provides the abstract classes for the repositories."""
 
+import datetime
 from abc import ABC
 from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from typing import Any, Generic, TypeVar, get_args
 from uuid import UUID
+from venv import create
 
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 from pydantic import BaseModel
@@ -77,8 +79,13 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
             UnableToCreateEntityDueToDuplicateKeyError: If the entity cannot be created due to a duplicate key error.
             OperationError: If the operation fails.
         """
+        insert_time: datetime.datetime = datetime.datetime.now(tz=datetime.timezone.utc)
         try:
-            document: DocumentGenericType = self._document_type(**entity.model_dump())
+            entity_dump: dict[str, Any] = entity.model_dump()
+            entity_dump["created_at"] = insert_time
+            entity_dump["updated_at"] = insert_time
+            document: DocumentGenericType = self._document_type(**entity_dump)
+
         except ValueError as error:
             raise ValueError(f"Failed to create document from entity: {error}") from error
 
@@ -95,6 +102,44 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
             raise ValueError(f"Failed to create entity from document: {error}") from error
 
         return entity_created
+
+    @managed_session()
+    async def update(
+        self, entity: EntityGenericType, session: AsyncIOMotorClientSession | None = None
+    ) -> EntityGenericType:
+        """Update the entity in the database.
+
+        Args:
+            entity (EntityGenericType): The entity to update.
+            session (AsyncIOMotorClientSession | None): The session to use. Defaults to None. (managed by decorator)
+
+        Returns:
+            EntityGenericType: The updated entity.
+
+        Raises:
+            ValueError: If the entity cannot be created from the document.
+            OperationError: If the operation fails.
+        """
+        update_time: datetime.datetime = datetime.datetime.now(tz=datetime.timezone.utc)
+        try:
+            entity_dump: dict[str, Any] = entity.model_dump()
+            entity_dump["updated_at"] = update_time
+            document: DocumentGenericType = self._document_type(**entity_dump)
+
+        except ValueError as error:
+            raise ValueError(f"Failed to create document from entity: {error}") from error
+
+        try:
+            document_updated: DocumentGenericType = await document.save(session=session)
+        except PyMongoError as error:
+            raise OperationError(f"Failed to update document: {error}") from error
+
+        try:
+            entity_updated: EntityGenericType = self._entity_type(**document_updated.model_dump())
+        except ValueError as error:
+            raise ValueError(f"Failed to create entity from document: {error}") from error
+
+        return entity_updated
 
     @managed_session()
     async def get_one_by_id(
