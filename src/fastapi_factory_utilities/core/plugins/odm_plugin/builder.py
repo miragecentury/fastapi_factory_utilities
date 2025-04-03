@@ -2,6 +2,7 @@
 
 from typing import Any, ClassVar, Self
 
+from bson import CodecOptions
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.server_api import ServerApi, ServerApiVersion
 from structlog.stdlib import get_logger
@@ -216,7 +217,12 @@ class ODMBuilder:
                 "ODM client is not set. Provide the ODM client using " "build_client method or through parameter."
             )
 
-        self._odm_database = self._odm_client.get_database(name=database_name)
+        self._odm_database = self._odm_client.get_database(
+            name=database_name,
+            codec_options=CodecOptions(  # pyright: ignore[reportUnknownArgumentType]
+                tz_aware=True,
+            ),
+        )
 
         return self
 
