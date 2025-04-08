@@ -163,8 +163,9 @@ class OpenTelemetryPluginBuilder:
 
             # Setup the Exporter
             exporter = OTLPMetricExporter(
-                endpoint=f"{self._config.endpoint.unicode_string()}v1/metrics",
+                endpoint=f"{self._config.endpoint.unicode_string()}",
                 timeout=self._config.timeout,
+                insecure=True if str(self._config.endpoint).startswith("http") else False,
             )
 
             # Setup the Metric Reader
@@ -215,8 +216,9 @@ class OpenTelemetryPluginBuilder:
 
             # Setup the Exporter
             exporter = OTLPSpanExporter(
-                endpoint=f"{self._config.endpoint.unicode_string()}v1/traces",
+                endpoint=f"{self._config.endpoint.unicode_string()}",
                 timeout=self._config.timeout,
+                insecure=True if str(self._config.endpoint).startswith("http") else False,
             )
 
             # Setup the Span Processor
