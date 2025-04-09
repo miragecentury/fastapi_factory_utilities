@@ -6,7 +6,6 @@ from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from typing import Any, Generic, TypeVar, get_args
 from uuid import UUID
-from venv import create
 
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 from pydantic import BaseModel
@@ -79,7 +78,7 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
             UnableToCreateEntityDueToDuplicateKeyError: If the entity cannot be created due to a duplicate key error.
             OperationError: If the operation fails.
         """
-        insert_time: datetime.datetime = datetime.datetime.now(tz=datetime.timezone.utc)
+        insert_time: datetime.datetime = datetime.datetime.now(tz=datetime.UTC)
         try:
             entity_dump: dict[str, Any] = entity.model_dump()
             entity_dump["created_at"] = insert_time
@@ -120,7 +119,7 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
             ValueError: If the entity cannot be created from the document.
             OperationError: If the operation fails.
         """
-        update_time: datetime.datetime = datetime.datetime.now(tz=datetime.timezone.utc)
+        update_time: datetime.datetime = datetime.datetime.now(tz=datetime.UTC)
         try:
             entity_dump: dict[str, Any] = entity.model_dump()
             entity_dump["updated_at"] = update_time
