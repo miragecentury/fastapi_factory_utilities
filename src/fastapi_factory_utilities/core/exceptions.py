@@ -1,9 +1,10 @@
 """FastAPI Factory Utilities exceptions."""
 
 import logging
-from typing import Any
+from typing import Any, Sequence
 
 from opentelemetry.trace import Span, get_current_span
+from opentelemetry.util.types import AttributeValue
 from structlog.stdlib import BoundLogger, get_logger
 
 _logger: BoundLogger = get_logger()
@@ -39,5 +40,12 @@ class FastAPIFactoryUtilitiesError(Exception):
         # and it will respond False to the is_recording method
         if span.is_recording():
             span.record_exception(self)
+            for key, value in kwargs.items():
+                attribute_value: AttributeValue
+                if not isinstance(value, (str, bool, int, float, Sequence)):
+                    attribute_value = str(value)
+                else:
+                    attribute_value = value
+                span.set_attribute(key, attribute_value)
         # Call the parent class
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
