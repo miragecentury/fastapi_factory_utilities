@@ -4,9 +4,22 @@ import datetime
 from abc import ABC
 from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
-from typing import Any, Generic, TypeVar, get_args
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    get_args,
+)
 from uuid import UUID
 
+from beanie import SortDirection
+from beanie.odm.queries.find import FindMany
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 from pydantic import BaseModel
 from pymongo.errors import DuplicateKeyError, PyMongoError
@@ -214,3 +227,66 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
             return
 
         raise OperationError("Failed to delete document.")
+
+    @managed_session()
+    async def find(
+        self,
+        *args: Union[Mapping[str, Any], bool],
+        projection_model: None = None,
+        skip: Optional[int] = None,
+        limit: Optional[int] = None,
+        sort: Union[None, str, List[Tuple[str, SortDirection]]] = None,
+        session: Optional[AsyncIOMotorClientSession] = None,
+        ignore_cache: bool = False,
+        fetch_links: bool = False,
+        lazy_parse: bool = False,
+        nesting_depth: Optional[int] = None,
+        nesting_depths_per_field: Optional[Dict[str, int]] = None,
+        **pymongo_kwargs: Any,
+    ) -> list[EntityGenericType]:
+        """Find documents in the database.
+
+        Args:
+            *args: The arguments to pass to the find method.
+            projection_model: The projection model to use.
+            skip: The number of documents to skip.
+            limit: The number of documents to return.
+            sort: The sort order.
+            session: The session to use.
+            ignore_cache: Whether to ignore the cache.
+            fetch_links: Whether to fetch links.
+            lazy_parse: Whether to lazy parse the documents.
+            nesting_depth: The nesting depth.
+            nesting_depths_per_field: The nesting depths per field.
+            **pymongo_kwargs: Additional keyword arguments to pass to the find method.
+
+        Returns:
+            list[EntityGenericType]: The list of entities.
+
+        Raises:
+            OperationError: If the operation fails.
+            ValueError: If the entity cannot be created from the document.
+        """
+        try:
+            documents: list[DocumentGenericType] = await self._document_type.find(
+                *args,
+                projection_model=projection_model,
+                skip=skip,
+                limit=limit,
+                sort=sort,
+                session=session,
+                ignore_cache=ignore_cache,
+                fetch_links=fetch_links,
+                lazy_parse=lazy_parse,
+                nesting_depth=nesting_depth,
+                nesting_depths_per_field=nesting_depths_per_field,
+            ).to_list()
+        except PyMongoError as error:
+            raise OperationError(f"Failed to find documents: {error}") from error
+
+        try:
+            entities: list[EntityGenericType] = [self._entity_type(**document.model_dump()) for document in documents]
+        except ValueError as error:
+            raise ValueError(f"Failed to create entity from document: {error}") from error
+
+        return entities
