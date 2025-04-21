@@ -16,6 +16,7 @@ class KratosTraitsObject(BaseModel):
 
     email: str
     username: str
+    realm_id: uuid.UUID
 
 
 class KratosIdentityObject(BaseModel):
