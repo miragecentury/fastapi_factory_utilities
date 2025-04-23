@@ -180,6 +180,7 @@ class ODMBuilder:
             connectTimeoutMS=self._config.connection_timeout_ms,
             serverSelectionTimeoutMS=self._config.connection_timeout_ms,
             server_api=ServerApi(version=ServerApiVersion.V1),
+            tz_aware=True,
         )
 
         # KEEP IT, Waiting for additional tests
