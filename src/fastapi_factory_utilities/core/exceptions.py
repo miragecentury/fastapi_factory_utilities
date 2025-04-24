@@ -1,7 +1,8 @@
 """FastAPI Factory Utilities exceptions."""
 
 import logging
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from opentelemetry.trace import Span, get_current_span
 from opentelemetry.util.types import AttributeValue

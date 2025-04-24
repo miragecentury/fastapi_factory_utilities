@@ -2,24 +2,12 @@
 
 import datetime
 from abc import ABC
-from collections.abc import AsyncGenerator, Callable
+from collections.abc import AsyncGenerator, Callable, Mapping
 from contextlib import asynccontextmanager
-from typing import (
-    Any,
-    Dict,
-    Generic,
-    List,
-    Mapping,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    get_args,
-)
+from typing import Any, Generic, TypeVar, get_args
 from uuid import UUID
 
 from beanie import SortDirection
-from beanie.odm.queries.find import FindMany
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 from pydantic import BaseModel
 from pymongo.errors import DuplicateKeyError, PyMongoError
@@ -229,19 +217,19 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
         raise OperationError("Failed to delete document.")
 
     @managed_session()
-    async def find(
+    async def find(  # noqa: PLR0913
         self,
-        *args: Union[Mapping[str, Any], bool],
+        *args: Mapping[str, Any] | bool,
         projection_model: None = None,
-        skip: Optional[int] = None,
-        limit: Optional[int] = None,
-        sort: Union[None, str, List[Tuple[str, SortDirection]]] = None,
-        session: Optional[AsyncIOMotorClientSession] = None,
+        skip: int | None = None,
+        limit: int | None = None,
+        sort: None | str | list[tuple[str, SortDirection]] = None,
+        session: AsyncIOMotorClientSession | None = None,
         ignore_cache: bool = False,
         fetch_links: bool = False,
         lazy_parse: bool = False,
-        nesting_depth: Optional[int] = None,
-        nesting_depths_per_field: Optional[Dict[str, int]] = None,
+        nesting_depth: int | None = None,
+        nesting_depths_per_field: dict[str, int] | None = None,
         **pymongo_kwargs: Any,
     ) -> list[EntityGenericType]:
         """Find documents in the database.

@@ -161,7 +161,7 @@ class TestIntegrationBookRepository:
 
         # Find only fantasy books
         fantasy_books = await book_repository.find({"book_type": BookType.FANTASY})
-        assert len(fantasy_books) == 2
+        assert len(fantasy_books) == 2  # noqa: PLR2004
         assert all(book.book_type == BookType.FANTASY for book in fantasy_books)
 
     @pytest.mark.asyncio()
@@ -189,10 +189,10 @@ class TestIntegrationBookRepository:
 
         # Test pagination
         first_page = await book_repository.find(skip=0, limit=2)
-        assert len(first_page) == 2
+        assert len(first_page) == 2  # noqa: PLR2004
 
         second_page = await book_repository.find(skip=2, limit=2)
-        assert len(second_page) == 2
+        assert len(second_page) == 2  # noqa: PLR2004
 
         last_page = await book_repository.find(skip=4, limit=2)
         assert len(last_page) == 1
@@ -231,7 +231,7 @@ class TestIntegrationBookRepository:
 
         # Test sorting by title ascending
         sorted_books = await book_repository.find(sort=[("title", 1)])
-        assert len(sorted_books) == 3
+        assert len(sorted_books) == 3  # noqa: PLR2004
         assert sorted_books[0].title == BookName("A Book")
         assert sorted_books[1].title == BookName("B Book")
         assert sorted_books[2].title == BookName("C Book")

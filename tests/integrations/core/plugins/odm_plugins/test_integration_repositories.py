@@ -125,7 +125,7 @@ class TestAbstractRepository:
 
         # Find all entities
         found_entities = await repository.find()
-        assert len(found_entities) == 3
+        assert len(found_entities) == 3  # noqa: PLR2004
 
     @pytest.mark.asyncio()
     async def test_find_with_filter(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
@@ -144,7 +144,7 @@ class TestAbstractRepository:
 
         # Find entities with category A
         found_entities = await repository.find({"category": "A"})
-        assert len(found_entities) == 2
+        assert len(found_entities) == 2  # noqa: PLR2004
         assert all(entity.category == "A" for entity in found_entities)
 
     @pytest.mark.asyncio()
@@ -160,10 +160,10 @@ class TestAbstractRepository:
 
         # Test pagination
         first_page = await repository.find(skip=0, limit=2)
-        assert len(first_page) == 2
+        assert len(first_page) == 2  # noqa: PLR2004
 
         second_page = await repository.find(skip=2, limit=2)
-        assert len(second_page) == 2
+        assert len(second_page) == 2  # noqa: PLR2004
 
         last_page = await repository.find(skip=4, limit=2)
         assert len(last_page) == 1
@@ -185,14 +185,14 @@ class TestAbstractRepository:
 
         # Test sorting ascending
         sorted_entities = await repository.find(sort=[("my_field", SortDirection.ASCENDING)])
-        assert len(sorted_entities) == 3
+        assert len(sorted_entities) == 3  # noqa: PLR2004
         assert sorted_entities[0].my_field == "A"
         assert sorted_entities[1].my_field == "B"
         assert sorted_entities[2].my_field == "C"
 
         # Test sorting descending
         sorted_entities = await repository.find(sort=[("my_field", SortDirection.DESCENDING)])
-        assert len(sorted_entities) == 3
+        assert len(sorted_entities) == 3  # noqa: PLR2004
         assert sorted_entities[0].my_field == "C"
         assert sorted_entities[1].my_field == "B"
         assert sorted_entities[2].my_field == "A"
