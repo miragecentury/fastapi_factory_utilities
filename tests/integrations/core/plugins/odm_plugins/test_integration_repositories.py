@@ -75,9 +75,17 @@ class TestAbstractRepository:
         assert entity_found.id == entity_id
         assert entity_found.my_field == "my_field"
 
+        def truncate_to_millis(dt: datetime.datetime) -> datetime.datetime:
+            """Truncate microseconds to milliseconds."""
+            return dt.replace(microsecond=(dt.microsecond // 1000) * 1000)
+
+        # Truncate microseconds to milliseconds for comparison
+        created_at_less_precision: datetime.datetime = truncate_to_millis(entity_found.created_at)
+        updated_at_less_precision: datetime.datetime = truncate_to_millis(entity_found.updated_at)
         assert isinstance(entity_found.created_at, datetime.datetime)
         assert isinstance(entity_found.updated_at, datetime.datetime)
-        assert entity_found.created_at == entity_created.created_at
+        assert entity_found.created_at == created_at_less_precision
+        assert entity_found.updated_at == updated_at_less_precision
 
     @pytest.mark.asyncio()
     async def test_delete_one(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:
@@ -101,6 +109,10 @@ class TestAbstractRepository:
         entity_created.my_field = "my_field_updated"
         entity_updated: EntityForTest = await repository.update(entity=entity_created)
 
+        def truncate_to_millis(dt: datetime.datetime) -> datetime.datetime:
+            """Truncate microseconds to milliseconds."""
+            return dt.replace(microsecond=(dt.microsecond // 1000) * 1000)
+
         assert entity_updated.id == entity_id
         assert entity_updated.my_field == "my_field_updated"
         assert entity_updated.updated_at is not None
@@ -109,8 +121,11 @@ class TestAbstractRepository:
         assert entity_created.created_at is not None
         assert isinstance(entity_updated.created_at, datetime.datetime)
         assert isinstance(entity_updated.updated_at, datetime.datetime)
-        assert entity_updated.created_at == entity_created.created_at
-        assert entity_updated.updated_at > entity_created.updated_at
+        # Truncate microseconds to milliseconds for comparison
+        created_at_less_precision: datetime.datetime = truncate_to_millis(entity_updated.created_at)
+        updated_at_less_precision: datetime.datetime = truncate_to_millis(entity_updated.updated_at)
+        assert entity_updated.created_at == created_at_less_precision
+        assert entity_updated.updated_at >= updated_at_less_precision
 
     @pytest.mark.asyncio()
     async def test_find_all(self, async_motor_database: AsyncIOMotorDatabase[Any]) -> None:

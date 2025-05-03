@@ -90,7 +90,7 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
             raise ValueError(f"Failed to create document from entity: {error}") from error
 
         try:
-            document_created: DocumentGenericType = await document.save(session=session)
+            document_created: DocumentGenericType = await document.insert(session=session)
         except DuplicateKeyError as error:
             raise UnableToCreateEntityDueToDuplicateKeyError(f"Failed to insert document: {error}") from error
         except PyMongoError as error:
