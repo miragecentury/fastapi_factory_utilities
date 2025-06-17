@@ -36,13 +36,13 @@ opentelemetry-exporter-otlp-proto-http = "^1.26.0"
 opentelemetry-exporter-otlp-proto-grpc = "^1.26.0"
 opentelemetry-instrumentation-fastapi = "^0"
 opentelemetry-propagator-b3 = "^1.26.0"
-beanie = "^1.27.0"
+beanie = "^1.30.0"
 opentelemetry-instrumentation-pymongo = "^0"
 pymongo = "~4.9.2" # version fixed to fix integration between beanie and pytest-mongo
 pyaml = "^25.1.0"
 reactivex = "^4.0.4"
 pyjwt = "^2.10.1"
-aiohttp = { version="^3.11.16", extras=["speedups"] }
+aiohttp = { version="^3.12.13", extras=["speedups"] }
 opentelemetry-instrumentation-aiohttp-client = "^0.55b1"
 
 [tool.poetry.group.test]
@@ -71,6 +71,7 @@ types-protobuf = "^5.29.1.20241207"
 types-psutil = "^6.1.0.20241221"
 types-pyopenssl = "^24.1.0.20240722"
 types-ujson = "^5.10.0.20240515"
+httpx = "^0.28.1"
 
 [tool.poetry.extras]
 
