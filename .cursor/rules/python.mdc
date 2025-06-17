@@ -1,0 +1,13 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+Use Python version define in [pyproject.toml](mdc:pyproject.toml).
+
+Use the principle of clean architecture in your realisation.
+
+For unit tests, use pytest.
+Regroup tests by functional scope in class.
+
+Always add docstring on methods, use google python docstring format.

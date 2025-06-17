@@ -8,6 +8,9 @@
         "**/*.pyc": {
             "when": "$(basename).py"
         },
+        "**/*.pyi": {
+            "when": "$(basename).py"
+        },
         "**/__pycache__": true,
         "**/.pytest_cache": true,
     },

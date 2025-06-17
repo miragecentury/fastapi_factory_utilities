@@ -1,9 +1,20 @@
 """Provides a factory function to build a objets for OpenTelemetry."""
 
 from typing import Any, Self
+from urllib.parse import ParseResult, urlparse
 
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+    OTLPMetricExporter as OTLPMetricExporterGRPC,
+)
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+    OTLPSpanExporter as OTLPSpanExporterGRPC,
+)
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import (
+    OTLPMetricExporter as OTLPMetricExporterHTTP,
+)
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
+    OTLPSpanExporter as OTLPSpanExporterHTTP,
+)
 from opentelemetry.metrics import set_meter_provider
 from opentelemetry.propagate import set_global_textmap
 from opentelemetry.propagators.b3 import B3MultiFormat
@@ -31,24 +42,30 @@ from fastapi_factory_utilities.core.utils.yaml_reader import (
     YamlFileReader,
 )
 
-from .configs import OpenTelemetryConfig
+from .configs import OpenTelemetryConfig, ProtocolEnum
 from .exceptions import OpenTelemetryPluginConfigError
+
+GRPC_PORT: int = 4317
+HTTP_PORT: int = 4318
 
 
 class OpenTelemetryPluginBuilder:
     """Configure the injection bindings for OpenTelemetryPlugin."""
 
-    def __init__(self, application: ApplicationAbstractProtocol) -> None:
+    def __init__(self, application: ApplicationAbstractProtocol, settings: OpenTelemetryConfig | None = None) -> None:
         """Instantiate the OpenTelemetryPluginFactory.
 
         Args:
             application (BaseApplicationProtocol): The application object.
+            settings (OpenTelemetryConfig | None): The OpenTelemetry configuration object.
         """
         self._application: ApplicationAbstractProtocol = application
         self._resource: Resource | None = None
-        self._config: OpenTelemetryConfig | None = None
+        self._config: OpenTelemetryConfig | None = settings
         self._meter_provider: MeterProvider | None = None
         self._tracer_provider: TracerProvider | None = None
+        self._trace_exporter: OTLPSpanExporterGRPC | OTLPSpanExporterHTTP | None = None
+        self._metric_exporter: OTLPMetricExporterGRPC | OTLPMetricExporterHTTP | None = None
 
     @property
     def resource(self) -> Resource | None:
@@ -161,11 +178,27 @@ class OpenTelemetryPluginBuilder:
 
             # TODO: Extract to a dedicated method for the exporter and period reader setup
 
+            url_parsed: ParseResult = urlparse(self._config.endpoint.unicode_string())
+
+            exporter: OTLPMetricExporterGRPC | OTLPMetricExporterHTTP
             # Setup the Exporter
-            exporter = OTLPMetricExporter(
-                endpoint=f"{self._config.endpoint.unicode_string()}v1/metrics",
-                timeout=self._config.timeout,
-            )
+            if url_parsed.port == GRPC_PORT or self._config.protocol == ProtocolEnum.OTLP_GRPC:
+                exporter = OTLPMetricExporterGRPC(
+                    endpoint=f"{self._config.endpoint.unicode_string()}",
+                    timeout=self._config.timeout,
+                    insecure=True if str(self._config.endpoint).startswith("http") else False,
+                )
+            elif url_parsed.port == HTTP_PORT or self._config.protocol == ProtocolEnum.OTLP_HTTP:
+                exporter = OTLPMetricExporterHTTP(
+                    endpoint=f"{self._config.endpoint.unicode_string()}/v1/metrics",
+                    timeout=self._config.timeout,
+                )
+            else:
+                raise OpenTelemetryPluginConfigError(
+                    "The endpoint port is not supported. Use 4317 for gRPC or 4318 for HTTP or set the protocol."
+                )
+
+            self._metric_exporter = exporter
 
             # Setup the Metric Reader
             meter_config: OpenTelemetryMeterConfig = self._config.meter_config
@@ -213,11 +246,28 @@ class OpenTelemetryPluginBuilder:
             if self._config.tracer_config is None:
                 raise OpenTelemetryPluginConfigError("The tracer configuration is missing.")
 
+            exporter: OTLPSpanExporterGRPC | OTLPSpanExporterHTTP
+            url_parsed: ParseResult = urlparse(self._config.endpoint.unicode_string())
             # Setup the Exporter
-            exporter = OTLPSpanExporter(
-                endpoint=f"{self._config.endpoint.unicode_string()}v1/traces",
-                timeout=self._config.timeout,
-            )
+            if url_parsed.port == GRPC_PORT or self._config.protocol == ProtocolEnum.OTLP_GRPC:
+                insecure: bool = False if str(self._config.endpoint).startswith("https") else True
+                endpoint: str = f"{self._config.endpoint.unicode_string()}"
+                exporter = OTLPSpanExporterGRPC(
+                    endpoint=endpoint,
+                    # timeout=self._config.timeout,
+                    insecure=insecure,
+                )
+            elif url_parsed.port == HTTP_PORT or self._config.protocol == ProtocolEnum.OTLP_HTTP:
+                exporter = OTLPSpanExporterHTTP(
+                    endpoint=f"{self._config.endpoint.unicode_string()}/v1/traces",
+                    # timeout=self._config.timeout,
+                )
+            else:
+                raise OpenTelemetryPluginConfigError(
+                    "The endpoint port is not supported. Use 4317 for gRPC or 4318 for HTTP or set the protocol."
+                )
+
+            self._trace_exporter = exporter
 
             # Setup the Span Processor
             tracer_config: OpenTelemetryTracerConfig = self._config.tracer_config
@@ -259,7 +309,8 @@ class OpenTelemetryPluginBuilder:
             Self: The OpenTelemetryPluginFactory object.
         """
         self.build_resource()
-        self.build_config()
+        if self._config is None:
+            self.build_config()
         self.build_meter_provider()
         self.build_tracer_provider()
 
