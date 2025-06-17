@@ -29,7 +29,7 @@ class UnableToReadYamlFileError(Exception):
 class YamlFileReader:
     """Handles reading YAML files and converting them to Pydantic models."""
 
-    re_pattern: re.Pattern[str] = re.compile(r"\${([A-Za-z0-9\-\_]+):?([A-Za-z0-9\-\_\/\:]*)?}")
+    re_pattern: re.Pattern[str] = re.compile(r"\${([A-Za-z0-9\-\_]+):?([A-Za-z0-9\-\_\/\:\.]*)?}")
 
     def __init__(
         self,

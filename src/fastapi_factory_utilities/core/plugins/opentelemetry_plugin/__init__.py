@@ -3,6 +3,7 @@
 import asyncio
 from typing import cast
 
+from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.fastapi import (  # pyright: ignore[reportMissingTypeStubs]
     FastAPIInstrumentor,
 )
@@ -65,6 +66,11 @@ def on_load(
         tracer_provider=otel_builder.tracer_provider,
         meter_provider=otel_builder.meter_provider,
         excluded_urls=otel_config.excluded_urls,
+    )
+    # Instrument the AioHttpClient
+    AioHttpClientInstrumentor().instrument(  # pyright: ignore[reportUnknownMemberType]
+        tracer_provider=otel_builder.tracer_provider,
+        meter_provider=otel_builder.meter_provider,
     )
 
     _logger.debug(f"OpenTelemetry plugin loaded. {otel_config.activate=}")

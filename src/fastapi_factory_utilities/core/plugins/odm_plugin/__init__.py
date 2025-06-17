@@ -22,6 +22,10 @@ from fastapi_factory_utilities.core.services.status.types import (
 )
 
 from .builder import ODMBuilder
+from .depends import depends_odm_client, depends_odm_database
+from .documents import BaseDocument
+from .exceptions import OperationError, UnableToCreateEntityDueToDuplicateKeyError
+from .repositories import AbstractRepository
 
 _logger: BoundLogger = get_logger()
 
@@ -78,6 +82,7 @@ async def on_startup(
 
     try:
         odm_factory: ODMBuilder = ODMBuilder(application=application).build_all()
+        await odm_factory.wait_ping()
     except Exception as exception:  # pylint: disable=broad-except
         _logger.error(f"ODM plugin failed to start. {exception}")
         # TODO: Report the error to the status_service
@@ -152,3 +157,13 @@ async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
     client: AsyncIOMotorClient[Any] = application.get_asgi_app().state.odm_client
     client.close()
     _logger.debug("ODM plugin shutdown.")
+
+
+__all__: list[str] = [
+    "BaseDocument",
+    "AbstractRepository",
+    "OperationError",
+    "UnableToCreateEntityDueToDuplicateKeyError",
+    "depends_odm_client",
+    "depends_odm_database",
+]

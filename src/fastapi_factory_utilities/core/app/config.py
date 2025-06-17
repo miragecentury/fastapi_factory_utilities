@@ -2,7 +2,8 @@
 
 from typing import Any, ClassVar, Generic, TypeVar, get_args
 
-from pydantic import BaseModel, ConfigDict, Field
+from fastapi import Request
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from fastapi_factory_utilities.core.app.exceptions import ConfigBuilderError
 from fastapi_factory_utilities.core.utils.configs import (
@@ -71,6 +72,18 @@ class BaseApplicationConfig(BaseModel):
     root_path: str = Field(default="", description="Root path")
 
 
+class HttpServiceDependencyConfig(BaseModel):
+    """Http service dependency config."""
+
+    url: HttpUrl
+
+
+class DependencyConfig(BaseModel):
+    """Dependency config."""
+
+    kratos: HttpServiceDependencyConfig | None = Field(default=None, description="Kratos dependency config")
+
+
 class RootConfig(BaseModel):
     """Root configuration."""
 
@@ -84,6 +97,7 @@ class RootConfig(BaseModel):
     cors: CorsConfig = Field(description="CORS configuration", default_factory=CorsConfig)
     development: DevelopmentConfig = Field(description="Development configuration", default_factory=DevelopmentConfig)
     logging: list[LoggingConfig] = Field(description="Logging configuration", default_factory=list)
+    dependencies: DependencyConfig = Field(description="Dependencies configuration", default_factory=DependencyConfig)
 
 
 GenericConfig = TypeVar("GenericConfig", bound=BaseModel)
@@ -162,3 +176,8 @@ class GenericConfigBuilder(Generic[GenericConfig]):
             ) from exception
 
         return config
+
+
+def depends_dependency_config(request: Request) -> DependencyConfig:
+    """Get the dependency config."""
+    return request.app.state.config.dependencies

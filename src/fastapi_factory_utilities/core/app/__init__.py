@@ -2,7 +2,13 @@
 
 from .application import ApplicationAbstract
 from .builder import ApplicationGenericBuilder
-from .config import BaseApplicationConfig, RootConfig
+from .config import (
+    BaseApplicationConfig,
+    DependencyConfig,
+    HttpServiceDependencyConfig,
+    RootConfig,
+    depends_dependency_config,
+)
 from .enums import EnvironmentEnum
 
 __all__: list[str] = [
@@ -11,4 +17,7 @@ __all__: list[str] = [
     "ApplicationAbstract",
     "ApplicationGenericBuilder",
     "RootConfig",
+    "HttpServiceDependencyConfig",
+    "DependencyConfig",
+    "depends_dependency_config",
 ]

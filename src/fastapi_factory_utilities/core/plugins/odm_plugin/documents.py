@@ -17,6 +17,7 @@ class BaseDocument(Document):
         default_factory=uuid4, description="The document ID."
     )
 
+    revision_id: UUID | None = Field(default=None, exclude=False)
     created_at: Annotated[datetime.datetime, Indexed(index_type=DESCENDING)] = Field(  # pyright: ignore
         default_factory=lambda: datetime.datetime.now(tz=datetime.UTC), description="Creation timestamp."
     )

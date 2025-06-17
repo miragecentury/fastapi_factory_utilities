@@ -26,6 +26,19 @@
             "pythonArgs": [
                 "-Xfrozen_modules=off"
             ]
+        },
+        {
+            "name": "stubsgen",
+            "type": "python",
+            "request": "launch",
+            "program": ".venv/bin/stubgen",
+            "justMyCode": false,
+            "args": [
+                "-o",
+                "./stubs/fastapi_factory_utilities",
+                "--module",
+                "fastapi_factory_utilities"
+            ]
         }
     ]
 }

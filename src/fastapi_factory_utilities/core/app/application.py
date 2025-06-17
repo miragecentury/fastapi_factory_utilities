@@ -54,6 +54,8 @@ class ApplicationAbstract(ABC):
         # Status service
         self.status_service: StatusService = StatusService()
         self.add_to_state(key="status_service", value=self.status_service)
+        self.add_to_state(key="config", value=self.config)
+        self.add_to_state(key="application", value=self)
         self._apply_states_to_fastapi_app()
         # Configure the application
         self.configure()

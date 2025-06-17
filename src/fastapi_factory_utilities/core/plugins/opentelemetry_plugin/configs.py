@@ -1,9 +1,17 @@
 """Provides the configuration model for the OpenTelemetry plugin."""
 
+from enum import StrEnum
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, UrlConstraints
 from pydantic_core import Url
+
+
+class ProtocolEnum(StrEnum):
+    """Defines the protocol enum for OpenTelemetry."""
+
+    OTLP_GRPC = "otlp_grpc"
+    OTLP_HTTP = "otlp_http"
 
 
 class OpenTelemetryMeterConfig(BaseModel):
@@ -75,6 +83,11 @@ class OpenTelemetryConfig(BaseModel):
     endpoint: Annotated[Url, UrlConstraints(allowed_schemes=["http", "https"])] = Field(
         default=Url(url=DEFAULT_COLLECTOR_ENDPOINT),
         description="The collector endpoint.",
+    )
+
+    protocol: ProtocolEnum | None = Field(
+        default=None,
+        description="The protocol to use for the collector.",
     )
 
     timeout: int = Field(
