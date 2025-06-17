@@ -3,7 +3,7 @@ name = "fastapi_factory_utilities"
 homepage = "https://github.com/miragecentury/fastapi_factory_utilities"
 repository = "https://github.com/miragecentury/fastapi_factory_utilities"
 keywords = ["python", "fastapi", "beanie", "httpx", "opentelemetry", "microservices"]
-version = "0.2.4"
+version = "0.3.7"
 description = "Consolidate libraries and utilities to create microservices in Python with FastAPI, Beanie, Httpx, AioPika and OpenTelemetry."
 authors = ["miragecentury <victorien.vanroye@gmail.com>"]
 maintainers = ["miragecentury <victorien.vanroye@gmail.com>"]
@@ -27,20 +27,23 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "~3.12"
 structlog = ">=24.1,<26.0"
-typer = "^0.15.1"
+typer = "^0"
 pydantic = "^2.8.2"
-fastapi = "^0.115.4"
-uvicorn = "^0.32.0"
+fastapi = "^0"
+uvicorn = "^0"
 opentelemetry-sdk = "^1.26.0"
 opentelemetry-exporter-otlp-proto-http = "^1.26.0"
-httpx = "^0.28.1"
-opentelemetry-instrumentation-fastapi = "^0.49b1"
+opentelemetry-exporter-otlp-proto-grpc = "^1.26.0"
+opentelemetry-instrumentation-fastapi = "^0"
 opentelemetry-propagator-b3 = "^1.26.0"
 beanie = "^1.27.0"
-opentelemetry-instrumentation-pymongo = "^0.49b2"
+opentelemetry-instrumentation-pymongo = "^0"
 pymongo = "~4.9.2" # version fixed to fix integration between beanie and pytest-mongo
 pyaml = "^25.1.0"
 reactivex = "^4.0.4"
+pyjwt = "^2.10.1"
+aiohttp = { version="^3.11.16", extras=["speedups"] }
+opentelemetry-instrumentation-aiohttp-client = "^0.55b1"
 
 [tool.poetry.group.test]
 optional = true
