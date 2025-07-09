@@ -88,8 +88,15 @@ class ApplicationGenericBuilder(Generic[T]):
             config_class=self._application_class.CONFIG_CLASS,
         ).build()
 
-    def build(self) -> T:
-        """Build the application."""
+    def build(self, **kwargs: Any) -> T:
+        """Build the application.
+
+        Args:
+            **kwargs: The keyword arguments to pass to the application.
+
+        Returns:
+            T: The application.
+        """
         # Plugin manager
         if self._plugin_manager is None:
             self._plugin_manager = PluginManager()
@@ -104,6 +111,7 @@ class ApplicationGenericBuilder(Generic[T]):
             root_config=self._root_config,
             plugin_manager=self._plugin_manager,
             fastapi_builder=self._fastapi_builder,
+            **kwargs,
         )
         application.setup()
         return application
