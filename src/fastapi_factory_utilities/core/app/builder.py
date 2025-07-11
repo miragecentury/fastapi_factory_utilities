@@ -125,7 +125,7 @@ class ApplicationGenericBuilder(Generic[T]):
         """Build the application and serve it with Uvicorn."""
         uvicorn_utils: UvicornUtils = self._uvicorn_utils or self.build_as_uvicorn_utils()
 
-        setup_log(mode=LogModeEnum.CONSOLE)
+        setup_log(mode=LogModeEnum.CONSOLE, logging_config=self._root_config.logging)
 
         try:
             uvicorn_utils.serve()
