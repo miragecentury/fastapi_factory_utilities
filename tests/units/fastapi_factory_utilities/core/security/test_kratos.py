@@ -53,14 +53,14 @@ class TestKratosSessionAuthentication:
     def test_init_with_default_values(self) -> None:
         """Test initialization with default values."""
         auth = KratosSessionAuthentication()
-        assert auth._cookie_name == "ory_kratos_session"
-        assert auth._raise_exception is True
+        assert auth._cookie_name == "ory_kratos_session"  # pylint: disable=protected-access
+        assert auth._raise_exception is True  # pylint: disable=protected-access
 
     def test_init_with_custom_values(self) -> None:
         """Test initialization with custom values."""
         auth = KratosSessionAuthentication(cookie_name="custom_cookie", raise_exception=False)
-        assert auth._cookie_name == "custom_cookie"
-        assert auth._raise_exception is False
+        assert auth._cookie_name == "custom_cookie"  # pylint: disable=protected-access
+        assert auth._raise_exception is False  # pylint: disable=protected-access
 
     def test_extract_cookie_when_cookie_exists(self, mock_request: MagicMock) -> None:
         """Test cookie extraction when cookie exists.
@@ -70,7 +70,7 @@ class TestKratosSessionAuthentication:
         """
         mock_request.cookies = {"ory_kratos_session": "test_cookie"}
         auth = KratosSessionAuthentication()
-        cookie = auth._extract_cookie(mock_request)
+        cookie = auth._extract_cookie(mock_request)  # pylint: disable=protected-access
         assert cookie == "test_cookie"
 
     def test_extract_cookie_when_cookie_missing(self, mock_request: MagicMock) -> None:
@@ -80,7 +80,7 @@ class TestKratosSessionAuthentication:
             mock_request (MagicMock): Mock request object.
         """
         auth = KratosSessionAuthentication()
-        cookie = auth._extract_cookie(mock_request)
+        cookie = auth._extract_cookie(mock_request)  # pylint: disable=protected-access
         assert cookie is None
 
     @pytest.mark.asyncio

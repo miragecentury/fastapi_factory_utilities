@@ -39,12 +39,10 @@ class TestPluginManger:
         ) as mock_import_module:
             mock_import_module.return_value = import_module("fastapi_factory_utilities.core.plugins.example")
             # Act
-            plugins: list[PluginProtocol] = (
-                plugin_manager._check_pre_conditions(  # pylint: disable=protected-access # pyright: ignore[reportPrivateUsage]
-                    plugin_package="",
-                    want_to_activate_plugins=cast(list[PluginsEnum], [self.PluginsEnumForTest.VALID_PLUGIN]),
-                    application=application,
-                )
+            plugins: list[PluginProtocol] = plugin_manager._check_pre_conditions(  # pylint: disable=protected-access # pyright: ignore[reportPrivateUsage]
+                plugin_package="",
+                want_to_activate_plugins=cast(list[PluginsEnum], [self.PluginsEnumForTest.VALID_PLUGIN]),
+                application=application,
             )
         # Assert
         assert len(plugins) == 1

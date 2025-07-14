@@ -268,6 +268,7 @@ class AbstractRepository(ABC, Generic[DocumentGenericType, EntityGenericType]):
                 lazy_parse=lazy_parse,
                 nesting_depth=nesting_depth,
                 nesting_depths_per_field=nesting_depths_per_field,
+                **pymongo_kwargs,
             ).to_list()
         except PyMongoError as error:
             raise OperationError(f"Failed to find documents: {error}") from error

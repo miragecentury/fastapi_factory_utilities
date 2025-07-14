@@ -3,6 +3,7 @@
 ```python
 # Example of using the MonitoredAbstract
 
+
 class MyMonitored(MonitoredAbstract):
     def __init__(self, status_service: StatusService) -> None:
         super().__init__(

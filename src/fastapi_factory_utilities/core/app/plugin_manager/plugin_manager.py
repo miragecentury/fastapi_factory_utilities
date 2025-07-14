@@ -67,7 +67,6 @@ class PluginManager:
         plugins: list[PluginProtocol] = []
 
         for plugin_enum in want_to_activate_plugins:
-
             try:
                 # Using a custom import function to be able to mock it in the tests.
                 plugin_module: ModuleType = cls._import_module(name=plugin_enum.value, package=plugin_package)

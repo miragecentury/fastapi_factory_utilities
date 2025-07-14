@@ -44,8 +44,19 @@ repos:
         stages:
           - "pre-push"
           - "manual"
-      - id: ruff
-        name: ruff
+      - id: ruff-format
+        name: ruff-format
+        language: system
+        entry: "./.venv/bin/ruff"
+        types: [python]
+        pass_filenames: false
+        args: ["format", "src", "tests"]
+        stages:
+          - "pre-push"
+          - "pre-commit"
+          - "manual"
+      - id: ruff-check
+        name: ruff-check
         language: system
         entry: "./.venv/bin/ruff"
         types: [python]
@@ -68,23 +79,6 @@ repos:
           - "pre-push"
           - "pre-commit"
           - "manual"
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-        stages:
-          - "pre-push"
-          - "pre-commit"
-          - "manual"
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-      - id: black
-        stages:
-          - "pre-push"
-          - "pre-commit"
-          - "manual"
   - repo: https://github.com/pylint-dev/pylint
     rev: v3.2.2
     hooks:
@@ -97,14 +91,6 @@ repos:
         # integration in the doc for details
         # require_serial: true
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "-j=4"]
-        stages:
-          - "pre-push"
-          - "manual"
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
-    hooks:
-      - id: pyupgrade
-        args: ["--py312-plus", "--keep-runtime-typing"]
         stages:
           - "pre-push"
           - "pre-commit"

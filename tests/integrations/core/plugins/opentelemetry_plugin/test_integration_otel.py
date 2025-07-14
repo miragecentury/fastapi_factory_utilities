@@ -143,10 +143,10 @@ class TestIntegrationOpentelemetryPlugin:
         span: Span = tracer.start_span("test_span")
         span.end()
 
-        assert builder._trace_exporter is not None
+        assert builder._trace_exporter is not None  # pylint: disable=protected-access
 
-        assert builder._trace_exporter.force_flush()
-        builder._trace_exporter.shutdown()
+        assert builder._trace_exporter.force_flush()  # pylint: disable=protected-access
+        builder._trace_exporter.shutdown()  # pylint: disable=protected-access
 
     def test_simple(self, fixture_otel_collector: OtelCollectorDict) -> None:
         """Test the OpenTelemetry plugin.

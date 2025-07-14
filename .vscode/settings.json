@@ -21,7 +21,6 @@
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.analysis.typeCheckingMode": "strict",
     "python.analysis.autoSearchPaths": true,
     "python.analysis.extraPaths": [
         "./src/",
@@ -29,20 +28,10 @@
     ],
     "python.analysis.useLibraryCodeForTypes": true,
     "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.aiCodeActions": {
-        "enabled": true
-    },
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.generateWithTypeAnnotation": true,
-    "python.analysis.ignore": [
-        ".venv", // Exclude virtual environment
-        "/usr", // Exclude system python
-        "/**/.vscode-server", // Exclude remote server python
-        "/**/Python.framework",
-        "/**/.vscode/extensions",
-    ],
+    "python.analysis.typeCheckingMode": "strict",
     "python.envFile": "${workspaceFolder}/.env",
-    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit",
@@ -57,8 +46,19 @@
     "files.trimTrailingWhitespaceInRegexAndStrings": true,
     "files.insertFinalNewline": true,
     "editor.tabSize": 4,
-    "cSpell.words": [
-        "asgi"
-    ],
-    "testing.defaultGutterClickAction": "debug"
+    "testing.defaultGutterClickAction": "debug",
+    "mirrord.promptUsingDefaultConfig": false,
+    "yaml.schemas": {
+        "file:///c%3A/Users/miragecentury/.cursor/extensions/atlassian.atlascode-3.8.3/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+        "https://raw.githubusercontent.com/GoogleContainerTools/skaffold/main/docs-v2/content/en/schemas/v4beta11.json": "file:///home/miragecentury/projects/github/laelidona/booking_backend/skaffold.yaml"
+    },
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "always",
+            "source.organizeImports": "always",
+            "source.convertImportFormat": "always"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    }
 }
