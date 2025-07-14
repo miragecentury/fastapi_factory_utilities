@@ -82,6 +82,8 @@ class DependencyConfig(BaseModel):
     """Dependency config."""
 
     kratos: HttpServiceDependencyConfig | None = Field(default=None, description="Kratos dependency config")
+    hydra_admin: HttpServiceDependencyConfig | None = Field(default=None, description="Hydra admin dependency config")
+    hydra_public: HttpServiceDependencyConfig | None = Field(default=None, description="Hydra public dependency config")
 
 
 class RootConfig(BaseModel):
