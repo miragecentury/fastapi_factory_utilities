@@ -25,6 +25,7 @@ from .builder import ODMBuilder
 from .depends import depends_odm_client, depends_odm_database
 from .documents import BaseDocument
 from .exceptions import OperationError, UnableToCreateEntityDueToDuplicateKeyError
+from .helpers import PersistedEntity
 from .repositories import AbstractRepository
 
 _logger: BoundLogger = get_logger()
@@ -162,6 +163,7 @@ async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
 __all__: list[str] = [
     "BaseDocument",
     "AbstractRepository",
+    "PersistedEntity",
     "OperationError",
     "UnableToCreateEntityDueToDuplicateKeyError",
     "depends_odm_client",
