@@ -72,7 +72,7 @@ class YamlFileReader:
                 try:
                     yaml_data = yaml_data[key]
                 except KeyError:
-                    logger.warning(f"Base key {key}" " not found in YAML file" + " from {self._yaml_base_key}")
+                    logger.warning(f"Base key {key} not found in YAML file" + " from {self._yaml_base_key}")
                     return dict()
         return yaml_data
 

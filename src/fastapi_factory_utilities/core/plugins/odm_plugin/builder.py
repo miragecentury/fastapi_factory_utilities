@@ -215,7 +215,7 @@ class ODMBuilder:
 
         if self._odm_client is None:
             raise ODMPluginConfigError(
-                "ODM client is not set. Provide the ODM client using " "build_client method or through parameter."
+                "ODM client is not set. Provide the ODM client using build_client method or through parameter."
             )
 
         self._odm_database = self._odm_client.get_database(
@@ -250,7 +250,7 @@ class ODMBuilder:
         """
         if self._odm_client is None:
             raise ODMPluginConfigError(
-                "ODM client is not set. Provide the ODM client using " "build_client method or through parameter."
+                "ODM client is not set. Provide the ODM client using build_client method or through parameter."
             )
 
         try:

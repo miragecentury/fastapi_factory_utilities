@@ -64,9 +64,9 @@ class MonitoredAbstract(ABC):
 
 
 __all__: list[str] = [
-    "MonitoredAbstract",
     "ComponentInstanceType",
     "ComponentTypeEnum",
+    "MonitoredAbstract",
     "Status",
     "StatusService",
 ]

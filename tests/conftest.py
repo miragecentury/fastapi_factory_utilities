@@ -80,9 +80,7 @@ async def async_motor_database(
         Generator[AsyncIOMotorDatabase, None, None]: The async motor database.
 
     """
-    _logger.debug(
-        f"Creating AsyncIOMotorDatabase with " f"{database_for_function.host=} and " f"{database_for_function.port=}"
-    )
+    _logger.debug(f"Creating AsyncIOMotorDatabase with {database_for_function.host=} and {database_for_function.port=}")
     client: AsyncIOMotorClient[Any] = AsyncIOMotorClient(
         host=f"mongodb://{database_for_function.host}:{database_for_function.port}",
         serverMonitoringMode="stream",  # prevent error on teardown of the client

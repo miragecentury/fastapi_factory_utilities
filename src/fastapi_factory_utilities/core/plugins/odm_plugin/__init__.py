@@ -95,7 +95,7 @@ async def on_startup(
 
     if odm_factory.odm_database is None or odm_factory.odm_client is None:
         _logger.error(
-            f"ODM plugin failed to start. Database: {odm_factory.odm_database} - " f"Client: {odm_factory.odm_client}"
+            f"ODM plugin failed to start. Database: {odm_factory.odm_database} - Client: {odm_factory.odm_client}"
         )
         # TODO: Report the error to the status_service
         # this will report the application as unhealthy
@@ -161,10 +161,10 @@ async def on_shutdown(application: ApplicationAbstractProtocol) -> None:
 
 
 __all__: list[str] = [
-    "BaseDocument",
     "AbstractRepository",
-    "PersistedEntity",
+    "BaseDocument",
     "OperationError",
+    "PersistedEntity",
     "UnableToCreateEntityDueToDuplicateKeyError",
     "depends_odm_client",
     "depends_odm_database",

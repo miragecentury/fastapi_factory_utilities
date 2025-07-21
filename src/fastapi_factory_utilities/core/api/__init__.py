@@ -22,4 +22,4 @@ api_v2: APIRouter = APIRouter(prefix="/v2")
 api.include_router(router=api_v1)
 api.include_router(router=api_v2)
 
-__all__: list[str] = ["api", "TagEnum"]
+__all__: list[str] = ["TagEnum", "api"]

@@ -8,8 +8,8 @@ from .exceptions import (
 from .plugin_manager import PluginManager
 
 __all__: list[str] = [
+    "InvalidPluginError",
     "PluginManager",
     "PluginManagerError",
-    "InvalidPluginError",
     "PluginPreConditionNotMetError",
 ]

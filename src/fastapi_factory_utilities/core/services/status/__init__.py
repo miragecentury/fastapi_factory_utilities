@@ -5,10 +5,10 @@ from .services import StatusService
 from .types import ComponentInstanceType, Status
 
 __all__: list[str] = [
-    "ComponentTypeEnum",
     "ComponentInstanceType",
+    "ComponentTypeEnum",
     "HealthStatusEnum",
     "ReadinessStatusEnum",
-    "StatusService",
     "Status",
+    "StatusService",
 ]

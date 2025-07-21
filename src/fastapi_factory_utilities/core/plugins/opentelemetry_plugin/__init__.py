@@ -20,8 +20,8 @@ from .exceptions import OpenTelemetryPluginBaseException, OpenTelemetryPluginCon
 __all__: list[str] = [
     "OpenTelemetryConfig",
     "OpenTelemetryPluginBaseException",
-    "OpenTelemetryPluginConfigError",
     "OpenTelemetryPluginBuilder",
+    "OpenTelemetryPluginConfigError",
 ]
 
 _logger: BoundLogger = get_logger()

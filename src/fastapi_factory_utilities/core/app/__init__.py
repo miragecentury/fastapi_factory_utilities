@@ -12,12 +12,12 @@ from .config import (
 from .enums import EnvironmentEnum
 
 __all__: list[str] = [
-    "BaseApplicationConfig",
-    "EnvironmentEnum",
     "ApplicationAbstract",
     "ApplicationGenericBuilder",
-    "RootConfig",
-    "HttpServiceDependencyConfig",
+    "BaseApplicationConfig",
     "DependencyConfig",
+    "EnvironmentEnum",
+    "HttpServiceDependencyConfig",
+    "RootConfig",
     "depends_dependency_config",
 ]

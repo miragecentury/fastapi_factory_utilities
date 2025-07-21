@@ -30,7 +30,7 @@ class TestBooksRoutes:
                 ],
             },
         ):
-            _logger.debug(f"MONGO_URI={os.getenv("MONGO_URI")}")
+            _logger.debug(f"MONGO_URI={os.getenv('MONGO_URI')}")  # pylint: disable=inconsistent-quotes
 
             with TestClient(app=AppBuilder().build()) as client:
                 response: Response = client.get("/api/v1/books")
