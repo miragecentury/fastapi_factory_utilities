@@ -3,7 +3,7 @@ name = "fastapi_factory_utilities"
 homepage = "https://github.com/miragecentury/fastapi_factory_utilities"
 repository = "https://github.com/miragecentury/fastapi_factory_utilities"
 keywords = ["python", "fastapi", "beanie", "httpx", "opentelemetry", "microservices"]
-version = "0.4.2"
+version = "0.5.0"
 description = "Consolidate libraries and utilities to create microservices in Python with FastAPI, Beanie, Httpx, AioPika and OpenTelemetry."
 authors = ["miragecentury <victorien.vanroye@gmail.com>"]
 maintainers = ["miragecentury <victorien.vanroye@gmail.com>"]
@@ -88,6 +88,7 @@ addopts = "--import-mode=importlib -n auto --color=yes"
 filterwarnings = [
     "ignore:.*datetime.datetime.utcfromtimestamp().*:DeprecationWarning", # reactivex
     "ignore:.*datetime.datetime.utcnow().*:DeprecationWarning", # reactivex
+    "ignore::pydantic.warnings.PydanticDeprecatedSince211",
 ]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
