@@ -17,7 +17,7 @@ class TestBookApi:
 
     def test_get_books(self) -> None:
         """Test get_books."""
-        application: App = AppBuilder(plugins_activation_list=[]).build()
+        application: App = AppBuilder(plugins=[]).build()
 
         application.get_asgi_app().dependency_overrides[depends_book_service] = lambda: MagicMock(
             spec=BookService, return_value=[]

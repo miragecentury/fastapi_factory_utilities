@@ -80,6 +80,8 @@ class TestAbstractRepository:
             return dt.replace(microsecond=(dt.microsecond // 1000) * 1000)
 
         # Truncate microseconds to milliseconds for comparison
+        assert entity_found.created_at is not None
+        assert entity_found.updated_at is not None
         created_at_less_precision: datetime.datetime = truncate_to_millis(entity_found.created_at)
         updated_at_less_precision: datetime.datetime = truncate_to_millis(entity_found.updated_at)
         assert isinstance(entity_found.created_at, datetime.datetime)

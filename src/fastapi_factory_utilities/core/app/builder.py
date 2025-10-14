@@ -4,10 +4,7 @@ from typing import Any, Generic, Self, TypeVar, get_args
 
 from fastapi_factory_utilities.core.app.config import GenericConfigBuilder, RootConfig
 from fastapi_factory_utilities.core.app.fastapi_builder import FastAPIBuilder
-from fastapi_factory_utilities.core.app.plugin_manager.plugin_manager import (
-    PluginManager,
-)
-from fastapi_factory_utilities.core.plugins import PluginsEnum
+from fastapi_factory_utilities.core.plugins import PluginAbstract
 from fastapi_factory_utilities.core.utils.log import LogModeEnum, setup_log
 from fastapi_factory_utilities.core.utils.uvicorn import UvicornUtils
 
@@ -19,21 +16,16 @@ T = TypeVar("T", bound=ApplicationAbstract)
 class ApplicationGenericBuilder(Generic[T]):
     """Application generic builder."""
 
-    def __init__(self, plugins_activation_list: list[PluginsEnum] | None = None) -> None:
+    def __init__(self, plugins: list[PluginAbstract] | None = None) -> None:
         """Instanciate the ApplicationGenericBuilder."""
         self._uvicorn_utils: UvicornUtils | None = None
         self._root_config: RootConfig | None = None
-        self._plugin_manager: PluginManager | None = None
+        self._plugins: list[PluginAbstract] = plugins or []
         self._fastapi_builder: FastAPIBuilder | None = None
         generic_args: tuple[Any, ...] = get_args(self.__orig_bases__[0])  # type: ignore
         self._application_class: type[T] = generic_args[0]
-        self._plugins_activation_list: list[PluginsEnum]
-        if plugins_activation_list is None:
-            self._plugins_activation_list = self._application_class.DEFAULT_PLUGINS_ACTIVATED
-        else:
-            self._plugins_activation_list = plugins_activation_list
 
-    def add_plugin_to_activate(self, plugin: PluginsEnum) -> Self:
+    def add_plugin_to_activate(self, plugin: PluginAbstract) -> Self:
         """Add a plugin to activate.
 
         Args:
@@ -42,7 +34,7 @@ class ApplicationGenericBuilder(Generic[T]):
         Returns:
             Self: The builder.
         """
-        self._plugins_activation_list.append(plugin)
+        self._plugins.append(plugin)
         return self
 
     def add_config(self, config: RootConfig) -> Self:
@@ -55,18 +47,6 @@ class ApplicationGenericBuilder(Generic[T]):
             Self: The builder.
         """
         self._root_config = config
-        return self
-
-    def add_plugin_manager(self, plugin_manager: PluginManager) -> Self:
-        """Add the plugin manager to the builder.
-
-        Args:
-            plugin_manager (PluginManager): The plugin manager.
-
-        Returns:
-            Self: The builder.
-        """
-        self._plugin_manager = plugin_manager
         return self
 
     def add_fastapi_builder(self, fastapi_builder: FastAPIBuilder) -> Self:
@@ -97,11 +77,6 @@ class ApplicationGenericBuilder(Generic[T]):
         Returns:
             T: The application.
         """
-        # Plugin manager
-        if self._plugin_manager is None:
-            self._plugin_manager = PluginManager()
-        for plugin in self._plugins_activation_list:
-            self._plugin_manager.activate(plugin=plugin)
         # RootConfig
         self._root_config = self._root_config or self._build_from_package_root_config()
         # FastAPIBuilder
@@ -109,7 +84,7 @@ class ApplicationGenericBuilder(Generic[T]):
 
         application: T = self._application_class(
             root_config=self._root_config,
-            plugin_manager=self._plugin_manager,
+            plugins=self._plugins,
             fastapi_builder=self._fastapi_builder,
             **kwargs,
         )
