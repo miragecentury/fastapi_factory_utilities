@@ -7,7 +7,9 @@ from beanie import Document
 from fastapi_factory_utilities.core.app.application import ApplicationAbstract
 from fastapi_factory_utilities.core.app.builder import ApplicationGenericBuilder
 from fastapi_factory_utilities.core.app.config import RootConfig
-from fastapi_factory_utilities.core.plugins import PluginsEnum
+from fastapi_factory_utilities.core.plugins.abstracts import PluginAbstract
+from fastapi_factory_utilities.core.plugins.odm_plugin import ODMPlugin
+from fastapi_factory_utilities.core.plugins.opentelemetry_plugin import OpenTelemetryPlugin
 from fastapi_factory_utilities.example.models.books.document import BookDocument
 
 
@@ -26,13 +28,11 @@ class App(ApplicationAbstract):
 
     ODM_DOCUMENT_MODELS: ClassVar[list[type[Document]]] = [BookDocument]
 
-    DEFAULT_PLUGINS_ACTIVATED: ClassVar[list[PluginsEnum]] = [PluginsEnum.OPENTELEMETRY_PLUGIN, PluginsEnum.ODM_PLUGIN]
-
     def configure(self) -> None:
         """Configure the application."""
         # Prevent circular import
         # pylint: disable=import-outside-toplevel
-        from .api import api_router  # noqa: PLC0415
+        from .api import api_router
 
         self.get_asgi_app().include_router(router=api_router)
 
@@ -48,4 +48,13 @@ class App(ApplicationAbstract):
 class AppBuilder(ApplicationGenericBuilder[App]):
     """Application builder for the App application."""
 
-    pass
+    def get_default_plugins(self) -> list[PluginAbstract]:
+        """Get the default plugins."""
+        return [ODMPlugin(), OpenTelemetryPlugin()]
+
+    def __init__(self, plugins: list[PluginAbstract] | None = None) -> None:
+        """Initialize the AppBuilder."""
+        # If no plugins are provided, use the default plugins
+        if plugins is None:
+            plugins = self.get_default_plugins()
+        super().__init__(plugins=plugins)
