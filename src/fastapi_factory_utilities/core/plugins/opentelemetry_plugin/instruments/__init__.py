@@ -19,7 +19,9 @@ def instrument_fastapi(
 ) -> None:
     """Instrument the FastAPI application."""
     if find_spec(name="fastapi") and find_spec(name="opentelemetry.instrumentation.fastapi"):
-        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor  # pylint: disable=import-outside-toplevel
+        from opentelemetry.instrumentation.fastapi import (  # pylint: disable=import-outside-toplevel # noqa: PLC0415
+            FastAPIInstrumentor,
+        )
 
         excluded_urls_str: str | None = None if len(config.excluded_urls) == 0 else ",".join(config.excluded_urls)
         FastAPIInstrumentor.instrument_app(  # pyright: ignore[reportUnknownMemberType]
@@ -48,7 +50,7 @@ def instrument_aiohttp(
         None
     """
     if find_spec(name="aiohttp") and find_spec(name="opentelemetry.instrumentation.aiohttp_client"):
-        from opentelemetry.instrumentation.aiohttp_client import (  # pylint: disable=import-outside-toplevel
+        from opentelemetry.instrumentation.aiohttp_client import (  # pylint: disable=import-outside-toplevel # noqa: PLC0415
             AioHttpClientInstrumentor,
         )
 
