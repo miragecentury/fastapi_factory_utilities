@@ -91,7 +91,10 @@ class OpenTelemetryPlugin(PluginAbstract):
             timeout_millis=self._otel_config.closing_timeout * self.SECONDS_TO_MS_MULTIPLIER
         )
         # No Delay for the shutdown of the tracer provider
-        self._tracer_provider.shutdown()
+        try:
+            self._tracer_provider.shutdown()
+        except Exception as exception:  # pylint: disable=broad-exception-caught
+            _logger.error("OpenTelemetry plugin failed to close the tracer provider.", error=exception)
 
     async def close_meter_provider(self) -> None:
         """Close the meter provider."""
@@ -100,7 +103,12 @@ class OpenTelemetryPlugin(PluginAbstract):
         self._meter_provider.force_flush(
             timeout_millis=self._otel_config.closing_timeout * self.SECONDS_TO_MS_MULTIPLIER
         )
-        self._meter_provider.shutdown(timeout_millis=self._otel_config.closing_timeout * self.SECONDS_TO_MS_MULTIPLIER)
+        try:
+            self._meter_provider.shutdown(
+                timeout_millis=self._otel_config.closing_timeout * self.SECONDS_TO_MS_MULTIPLIER
+            )
+        except Exception as exception:  # pylint: disable=broad-exception-caught
+            _logger.error("OpenTelemetry plugin failed to close the meter provider.", error=exception)
 
     async def on_shutdown(self) -> None:
         """On shutdown."""
