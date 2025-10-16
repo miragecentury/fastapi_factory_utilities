@@ -13,13 +13,13 @@ from .plugins import ODMPlugin
 from .repositories import AbstractRepository
 
 __all__: list[str] = [
-    "ODMPlugin",
     "AbstractRepository",
     "BaseDocument",
-    "PersistedEntity",
+    "ODMPlugin",
     "ODMPluginBaseException",
     "ODMPluginConfigError",
     "OperationError",
+    "PersistedEntity",
     "UnableToCreateEntityDueToDuplicateKeyError",
     "depends_odm_client",
     "depends_odm_database",

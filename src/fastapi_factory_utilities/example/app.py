@@ -32,7 +32,7 @@ class App(ApplicationAbstract):
         """Configure the application."""
         # Prevent circular import
         # pylint: disable=import-outside-toplevel
-        from .api import api_router
+        from .api import api_router  # noqa: PLC0415
 
         self.get_asgi_app().include_router(router=api_router)
 
