@@ -17,7 +17,7 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.trace import Tracer
 from opentelemetry.trace.span import Span
 from testcontainers.core.container import DockerContainer
-from testcontainers.core.waiting_utils import wait_for_logs
+from testcontainers.core.wait_strategies import LogMessageWaitStrategy
 
 from fastapi_factory_utilities.core.app.config import BaseApplicationConfig, RootConfig
 from fastapi_factory_utilities.core.app.enums import EnvironmentEnum
@@ -82,14 +82,10 @@ class TestIntegrationOpentelemetryPlugin:
             .with_command(
                 "--config=/otel-local-config.yaml",
             )
+            .waiting_for(LogMessageWaitStrategy("Everything is ready").with_startup_timeout(30))
         )
 
         with otel_container:
-            wait_for_logs(
-                container=otel_container,
-                predicate="Everything is ready",
-                timeout=30,
-            )
             sleep(1)
             yield OtelCollectorDict(
                 endpoint_protobuff=f"http://{otel_container.get_container_host_ip()}"
