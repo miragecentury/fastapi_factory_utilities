@@ -89,6 +89,8 @@ filterwarnings = [
     "ignore:.*datetime.datetime.utcfromtimestamp().*:DeprecationWarning", # reactivex
     "ignore:.*datetime.datetime.utcnow().*:DeprecationWarning", # reactivex
     "ignore::pydantic.warnings.PydanticDeprecatedSince211",
+"ignore:The @wait_container_is_ready decorator is deprecated.*:DeprecationWarning", # testcontainers
+    "ignore:The wait_for_logs function with string or callable predicates is deprecated.*:DeprecationWarning", # testcontainers
 ]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
