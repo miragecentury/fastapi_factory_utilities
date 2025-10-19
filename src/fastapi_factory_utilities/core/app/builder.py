@@ -63,7 +63,7 @@ class ApplicationGenericBuilder(Generic[T]):
 
     def _build_from_package_root_config(self) -> RootConfig:
         """Build the configuration from the package."""
-        return GenericConfigBuilder[self._application_class.CONFIG_CLASS](
+        return GenericConfigBuilder[self._application_class.CONFIG_CLASS](  # type: ignore
             package_name=self._application_class.PACKAGE_NAME,
             config_class=self._application_class.CONFIG_CLASS,
         ).build()
@@ -100,6 +100,7 @@ class ApplicationGenericBuilder(Generic[T]):
         """Build the application and serve it with Uvicorn."""
         uvicorn_utils: UvicornUtils = self._uvicorn_utils or self.build_as_uvicorn_utils()
 
+        assert self._root_config is not None
         setup_log(mode=LogModeEnum.CONSOLE, logging_config=self._root_config.logging)
 
         try:

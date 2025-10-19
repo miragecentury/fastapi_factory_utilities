@@ -64,7 +64,7 @@ class FastAPIBuilder:
             title=self._root_config.application.service_name,
             description="",
             version=self._root_config.application.version,
-            lifespan=lifespan,  # type: ignore
+            lifespan=lifespan,
         )
 
         fastapi.add_middleware(
@@ -77,8 +77,8 @@ class FastAPIBuilder:
 
         for middleware_args in self._middleware_list:
             fastapi.add_middleware(
-                middleware_class=middleware_args.middleware_class,
-                **middleware_args.kwargs,  # type: ignore
+                middleware_class=middleware_args.middleware_class,  # type: ignore
+                **middleware_args.kwargs,  # pyright: ignore
             )
 
         fastapi.include_router(router=self._base_router)

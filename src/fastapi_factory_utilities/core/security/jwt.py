@@ -140,11 +140,11 @@ class JWTBearerAuthentication:
         # by the request or by the jwt parameter
         if self.jwt_raw is None and request is None:
             raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Missing Credentials")
-
+        jwt_raw: str
         if self.jwt_raw is None:
-            jwt_raw: str = self._extract_raw_token(request=request)  # type: ignore[arg-type]
+            jwt_raw = self._extract_raw_token(request=request)  # type: ignore[arg-type]
         else:
-            jwt_raw: str = self.jwt_raw
+            jwt_raw = self.jwt_raw
 
         # Execute the io bound and cpu bound tasks in parallel
         async with TaskGroup() as tg:

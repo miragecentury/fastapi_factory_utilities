@@ -1,9 +1,7 @@
 """Test cases for the health endpoint."""
 
 import os
-import asyncio
 from http import HTTPStatus
-from typing import Any
 from unittest.mock import patch
 
 import pytest
