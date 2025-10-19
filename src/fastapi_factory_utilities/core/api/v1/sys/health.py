@@ -10,10 +10,10 @@ from pydantic import BaseModel
 
 from fastapi_factory_utilities.core.services.status.enums import HealthStatusEnum
 from fastapi_factory_utilities.core.services.status.services import (
-    ComponentInstanceKey,
     StatusService,
     depends_status_service,
 )
+from fastapi_factory_utilities.core.services.status.types import ComponentInstanceKey
 
 api_v1_sys_health = APIRouter(prefix="/health")
 

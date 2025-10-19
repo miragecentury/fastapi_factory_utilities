@@ -9,8 +9,13 @@ from fastapi_factory_utilities.core.utils.log import (
 )
 
 from .fixtures.mongo import (
-    mongodb_server_as_container,
     mongodb_async_database_from_container,
+    mongodb_server_as_container,
+)
+from .fixtures.rabbitmq_fixture import (
+    fixture_aiopika_plugin,
+    fixture_rabbitmq_container,
+    fixture_vhost,
 )
 
 setup_log(
@@ -28,8 +33,10 @@ setup_log(
 )
 
 
-
 __all__: list[str] = [
-    "mongodb_server_as_container",
+    "fixture_aiopika_plugin",
+    "fixture_rabbitmq_container",
+    "fixture_vhost",
     "mongodb_async_database_from_container",
+    "mongodb_server_as_container",
 ]

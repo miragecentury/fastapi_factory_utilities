@@ -8,10 +8,11 @@ from uuid import UUID, uuid4
 import pytest
 import pytest_asyncio
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from testcontainers.mongodb import MongoDbContainer
 from structlog.stdlib import BoundLogger, get_logger
+from testcontainers.mongodb import MongoDbContainer
 
 _logger: BoundLogger = get_logger(__package__)
+
 
 @pytest.fixture(scope="session", name="mongodb_server_as_container")
 def mongodb_server_as_container() -> Generator[MongoDbContainer, None, None]:

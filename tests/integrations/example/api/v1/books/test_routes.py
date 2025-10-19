@@ -1,9 +1,8 @@
 """Tests for the routes of the books API."""
 
-import os
 import asyncio
+import os
 from http import HTTPStatus
-from typing import Any
 from unittest.mock import patch
 
 import pytest

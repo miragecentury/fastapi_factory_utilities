@@ -13,7 +13,7 @@ class BaseDocument(Document):
     """Base document class."""
 
     # To be agnostic of MongoDN, we use UUID as the document ID.
-    id: UUID = Field(  # pyright: ignore[reportIncompatibleVariableOverride]
+    id: UUID = Field(  # type: ignore
         default_factory=uuid4, description="The document ID."
     )
 

@@ -1,5 +1,7 @@
 """Instruments for the OpenTelemetry plugin."""
 
+# pyright: reportMissingTypeStubs=false
+
 from collections.abc import Callable
 from importlib.util import find_spec
 from typing import Any
@@ -60,6 +62,24 @@ def instrument_aiohttp(
         )
 
 
-INSTRUMENTS: list[Callable[..., Any]] = [instrument_fastapi, instrument_aiohttp]
+def instrument_aio_pika(
+    application: ApplicationAbstractProtocol,  # pylint: disable=unused-argument
+    config: OpenTelemetryConfig,  # pylint: disable=unused-argument
+    meter_provider: MeterProvider,
+    tracer_provider: TracerProvider,
+) -> None:
+    """Instrument the AioPika application."""
+    if find_spec(name="aio_pika") and find_spec(name="opentelemetry.instrumentation.aio_pika"):
+        from opentelemetry.instrumentation.aio_pika import (  # pylint: disable=import-outside-toplevel # noqa: PLC0415
+            AioPikaInstrumentor,
+        )
+
+        AioPikaInstrumentor().instrument(  # pyright: ignore[reportUnknownMemberType]
+            tracer_provider=tracer_provider,
+            meter_provider=meter_provider,
+        )
+
+
+INSTRUMENTS: list[Callable[..., Any]] = [instrument_fastapi, instrument_aiohttp, instrument_aio_pika]
 
 __all__: list[str] = ["INSTRUMENTS"]

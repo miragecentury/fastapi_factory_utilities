@@ -43,7 +43,9 @@ pyaml = "^25.1.0"
 reactivex = "^4.0.4"
 pyjwt = "^2.10.1"
 aiohttp = { version="^3.12.13", extras=["speedups"] }
-opentelemetry-instrumentation-aiohttp-client = "^0.55b1"
+opentelemetry-instrumentation-aiohttp-client = "^0"
+aio-pika = "^9.5.7"
+opentelemetry-instrumentation-aio-pika = "^0.59b0"
 
 [tool.poetry.group.test]
 optional = true
@@ -63,7 +65,7 @@ ruff = ">=0.7.2,<0.13.0"
 pytest-asyncio = ">=0.25,<1.1"
 pytest-mongo = "^3.1.0"
 locust = "^2.32.4"
-testcontainers = { version="^4.9.0", extras=["mongodb"] }
+testcontainers = { version="^4.9.0", extras=["mongodb","rabbitmq"] }
 types-deprecated = "^1.2.15.20241117"
 types-pygments = "^2.18.0.20240506"
 types-colorama = "^0.4.15.20240311"
@@ -89,7 +91,7 @@ filterwarnings = [
     "ignore:.*datetime.datetime.utcfromtimestamp().*:DeprecationWarning", # reactivex
     "ignore:.*datetime.datetime.utcnow().*:DeprecationWarning", # reactivex
     "ignore::pydantic.warnings.PydanticDeprecatedSince211",
-"ignore:The @wait_container_is_ready decorator is deprecated.*:DeprecationWarning", # testcontainers
+    "ignore:The @wait_container_is_ready decorator is deprecated.*:DeprecationWarning", # testcontainers
     "ignore:The wait_for_logs function with string or callable predicates is deprecated.*:DeprecationWarning", # testcontainers
 ]
 asyncio_mode = "auto"
@@ -111,6 +113,7 @@ mypy_path  = "src:tests"
 namespace_packages = true
 plugins = ["pydantic.mypy"]
 follow_imports = "silent"
+follow_untyped_imports = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 disallow_any_generics = true

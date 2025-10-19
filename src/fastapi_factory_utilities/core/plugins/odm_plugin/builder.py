@@ -242,7 +242,7 @@ class ODMBuilder:
 
         return self
 
-    async def wait_ping(self):
+    async def wait_ping(self) -> None:
         """Wait for the ODM client to be ready.
 
         Returns:
