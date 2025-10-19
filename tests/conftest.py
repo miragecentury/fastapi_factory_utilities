@@ -22,10 +22,6 @@ setup_log(
     mode=LogModeEnum.CONSOLE,
     log_level="DEBUG",
     logging_config=[
-        LoggingConfig(
-            name="pymongo",
-            level=logging.INFO,
-        ),
         LoggingConfig(name="pymongo", level=logging.INFO),
         LoggingConfig(name="mirakuru", level=logging.INFO),
         LoggingConfig(name="asyncio", level=logging.INFO),

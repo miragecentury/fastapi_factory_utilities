@@ -46,7 +46,6 @@ class TestListener(AbstractListener[TestMessage]):
 
     async def on_message(self, message: TestMessage) -> None:
         """On message."""
-        print(f"Received message: {message.data.message}")
         self._message_count += 1
         await message.ack()
 
