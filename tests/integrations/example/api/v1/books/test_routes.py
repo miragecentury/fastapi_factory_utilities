@@ -1,6 +1,5 @@
 """Tests for the routes of the books API."""
 
-import asyncio
 import os
 from http import HTTPStatus
 from unittest.mock import patch
@@ -24,9 +23,6 @@ class TestBooksRoutes:
         """Test get_books."""
         # Use the container's connection URL directly
         mongo_uri: str = mongodb_server_as_container.get_connection_url()
-
-        # Add a small delay to ensure MongoDB is fully ready
-        await asyncio.sleep(2)
 
         with patch.dict(os.environ, {"MONGO_URI": mongo_uri}):
             _logger.debug(f"MONGO_URI={os.getenv('MONGO_URI')}")  # pylint: disable=inconsistent-quotes
