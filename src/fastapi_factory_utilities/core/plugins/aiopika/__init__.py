@@ -1,6 +1,7 @@
 """Aiopika Plugin Module."""
 
 from .configs import AiopikaConfig
+from .depends import depends_aiopike_robust_connection
 from .exceptions import AiopikaPluginBaseError, AiopikaPluginConfigError
 from .exchange import Exchange
 from .listener import AbstractListener
@@ -20,4 +21,5 @@ __all__: list[str] = [
     "Exchange",
     "Queue",
     "SenderModel",
+    "depends_aiopike_robust_connection",
 ]

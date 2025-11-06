@@ -2,10 +2,10 @@
 
 from typing import cast
 
-from aio_pika import connect_robust
+from aio_pika import connect_robust  # pyright: ignore[reportUnknownMemberType]
 from aio_pika.abc import AbstractRobustConnection
 from fastapi import Request
-from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor
+from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor  # pyright: ignore[reportMissingTypeStubs]
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.trace import TracerProvider
 from structlog.stdlib import BoundLogger, get_logger
@@ -13,6 +13,7 @@ from structlog.stdlib import BoundLogger, get_logger
 from fastapi_factory_utilities.core.plugins.abstracts import PluginAbstract
 
 from .configs import AiopikaConfig, build_config_from_package
+from .depends import DEPENDS_AIOPIKA_ROBUST_CONNECTION_KEY
 from .exceptions import AiopikaPluginBaseError
 
 _logger: BoundLogger = get_logger(__package__)
@@ -61,7 +62,7 @@ class AiopikaPlugin(PluginAbstract):
         )
 
         self._robust_connection = await connect_robust(url=str(self._aiopika_config.amqp_url))
-        self._add_to_state(key="robust_connection", value=self._robust_connection)
+        self._add_to_state(key=DEPENDS_AIOPIKA_ROBUST_CONNECTION_KEY, value=self._robust_connection)
         _logger.debug("Aiopika plugin connected to the AMQP server.", amqp_url=self._aiopika_config.amqp_url)
 
     async def on_shutdown(self) -> None:
