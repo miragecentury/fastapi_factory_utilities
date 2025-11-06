@@ -1,13 +1,19 @@
 """Provides the Aiopika plugin."""
 
+from typing import cast
+
 from aio_pika import connect_robust
 from aio_pika.abc import AbstractRobustConnection
 from fastapi import Request
+from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.trace import TracerProvider
 from structlog.stdlib import BoundLogger, get_logger
 
 from fastapi_factory_utilities.core.plugins.abstracts import PluginAbstract
 
 from .configs import AiopikaConfig, build_config_from_package
+from .exceptions import AiopikaPluginBaseError
 
 _logger: BoundLogger = get_logger(__package__)
 
@@ -39,6 +45,20 @@ class AiopikaPlugin(PluginAbstract):
         """On startup."""
         assert self._application is not None
         assert self._aiopika_config is not None
+
+        tracer_provider: TracerProvider | None = cast(
+            TracerProvider | None, getattr(self._application.get_asgi_app().state, "tracer_provider", None)
+        )
+        meter_provider: MeterProvider | None = cast(
+            MeterProvider | None, getattr(self._application.get_asgi_app().state, "meter_provider", None)
+        )
+        if tracer_provider is None or meter_provider is None:
+            raise AiopikaPluginBaseError("Tracer provider or meter provider not found in the application state.")
+
+        AioPikaInstrumentor().instrument(
+            tracer_provider=tracer_provider,
+            meter_provider=meter_provider,
+        )
 
         self._robust_connection = await connect_robust(url=str(self._aiopika_config.amqp_url))
         self._add_to_state(key="robust_connection", value=self._robust_connection)
